@@ -17,6 +17,11 @@ export default function RustWasmGraphics() {
   const [color, setColor] = useState({ r: 1, g: 0.5, b: 0.2 });
   const [shape, setShape] = useState<"triangle" | "cube">("triangle");
   const [isAnimating, setIsAnimating] = useState(false);
+  const [translation, setTranslation] = useState({ x: 0, y: 0 });
+  const [backgroundColor, setBackgroundColor] = useState({ r: 0, g: 0, b: 0, a: 1 });
+  const [wireframeMode, setWireframeMode] = useState(false);
+  const [cameraDistance, setCameraDistance] = useState(3);
+  const [cameraAngles, setCameraAngles] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     let animationId: number;
@@ -80,6 +85,11 @@ export default function RustWasmGraphics() {
           engine.set_rotation(rotation);
           engine.set_scale(scale);
           engine.set_color(color.r, color.g, color.b);
+          engine.set_translation(translation.x, translation.y);
+          engine.set_background_color(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
+          engine.set_wireframe_mode(wireframeMode);
+          engine.set_camera_distance(cameraDistance);
+          engine.set_camera_angles(cameraAngles.x, cameraAngles.y);
           engine.render();
           
           setStatus("Rust + WebAssembly Ready! 🦀✨");
@@ -107,6 +117,11 @@ export default function RustWasmGraphics() {
         engineRef.current.set_rotation(rotation);
         engineRef.current.set_scale(scale);
         engineRef.current.set_color(color.r, color.g, color.b);
+        engineRef.current.set_translation(translation.x, translation.y);
+        engineRef.current.set_background_color(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
+        engineRef.current.set_wireframe_mode(wireframeMode);
+        engineRef.current.set_camera_distance(cameraDistance);
+        engineRef.current.set_camera_angles(cameraAngles.x, cameraAngles.y);
         
         if (shape === "cube") {
           engineRef.current.render_cube();
@@ -117,7 +132,7 @@ export default function RustWasmGraphics() {
         console.error("Render error:", error);
       }
     }
-  }, [rotation, scale, color, shape]);
+  }, [rotation, scale, color, shape, translation, backgroundColor, wireframeMode, cameraDistance, cameraAngles]);
 
   useEffect(() => {
     let animationId: number;
@@ -166,9 +181,9 @@ export default function RustWasmGraphics() {
       {engineRef.current && (
         <div style={{ 
           display: "grid", 
-          gridTemplateColumns: "1fr 1fr", 
+          gridTemplateColumns: "1fr 1fr 1fr", 
           gap: "30px",
-          maxWidth: "800px"
+          maxWidth: "1200px"
         }}>
           <div>
             <h3>🔄 Transform</h3>
@@ -198,6 +213,32 @@ export default function RustWasmGraphics() {
                 step="0.01"
                 value={scale}
                 onInput={(e) => setScale(parseFloat(e.currentTarget.value))}
+                style={{ width: "100%" }}
+              />
+            </div>
+            
+            <div style={{ marginBottom: "15px" }}>
+              <label style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>Translation X: {translation.x.toFixed(2)}</label>
+              <input
+                type="range"
+                min="-2"
+                max="2"
+                step="0.01"
+                value={translation.x}
+                onInput={(e) => setTranslation(prev => ({ ...prev, x: parseFloat(e.currentTarget.value) }))}
+                style={{ width: "100%" }}
+              />
+            </div>
+            
+            <div style={{ marginBottom: "15px" }}>
+              <label style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>Translation Y: {translation.y.toFixed(2)}</label>
+              <input
+                type="range"
+                min="-2"
+                max="2"
+                step="0.01"
+                value={translation.y}
+                onInput={(e) => setTranslation(prev => ({ ...prev, y: parseFloat(e.currentTarget.value) }))}
                 style={{ width: "100%" }}
               />
             </div>
@@ -234,6 +275,17 @@ export default function RustWasmGraphics() {
                   🧊 Cube
                 </button>
               </div>
+            </div>
+            
+            <div style={{ marginBottom: "15px" }}>
+              <label style={{ display: "flex", alignItems: "center", gap: "10px", fontWeight: "bold" }}>
+                <input
+                  type="checkbox"
+                  checked={wireframeMode}
+                  onChange={(e) => setWireframeMode(e.currentTarget.checked)}
+                />
+                📐 Wireframe Mode
+              </label>
             </div>
           </div>
           
@@ -284,6 +336,19 @@ export default function RustWasmGraphics() {
               />
             </div>
             
+            <div style={{ marginBottom: "15px" }}>
+              <label style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>Background Alpha: {backgroundColor.a.toFixed(2)}</label>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={backgroundColor.a}
+                onInput={(e) => setBackgroundColor(prev => ({ ...prev, a: parseFloat(e.currentTarget.value) }))}
+                style={{ width: "100%" }}
+              />
+            </div>
+            
             <button
               onClick={() => setIsAnimating(!isAnimating)}
               style={{
@@ -301,6 +366,87 @@ export default function RustWasmGraphics() {
               {isAnimating ? "⏸️ Stop Animation" : "▶️ Start Animation"}
             </button>
           </div>
+          
+          <div>
+            <h3>🎥 Camera & Environment</h3>
+            <div style={{ marginBottom: "15px" }}>
+              <label style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>🔍 Camera Distance: {cameraDistance.toFixed(2)}</label>
+              <input
+                type="range"
+                min="1"
+                max="10"
+                step="0.1"
+                value={cameraDistance}
+                onInput={(e) => setCameraDistance(parseFloat(e.currentTarget.value))}
+                style={{ width: "100%" }}
+              />
+            </div>
+            
+            <div style={{ marginBottom: "15px" }}>
+              <label style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>📐 Camera Angle X: {cameraAngles.x.toFixed(2)} rad</label>
+              <input
+                type="range"
+                min={-Math.PI}
+                max={Math.PI}
+                step="0.01"
+                value={cameraAngles.x}
+                onInput={(e) => setCameraAngles(prev => ({ ...prev, x: parseFloat(e.currentTarget.value) }))}
+                style={{ width: "100%" }}
+              />
+            </div>
+            
+            <div style={{ marginBottom: "15px" }}>
+              <label style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>🔄 Camera Angle Y: {cameraAngles.y.toFixed(2)} rad</label>
+              <input
+                type="range"
+                min={-Math.PI}
+                max={Math.PI}
+                step="0.01"
+                value={cameraAngles.y}
+                onInput={(e) => setCameraAngles(prev => ({ ...prev, y: parseFloat(e.currentTarget.value) }))}
+                style={{ width: "100%" }}
+              />
+            </div>
+            
+            <div style={{ marginBottom: "15px" }}>
+              <label style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>🔴 Background Red: {backgroundColor.r.toFixed(2)}</label>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={backgroundColor.r}
+                onInput={(e) => setBackgroundColor(prev => ({ ...prev, r: parseFloat(e.currentTarget.value) }))}
+                style={{ width: "100%" }}
+              />
+            </div>
+            
+            <div style={{ marginBottom: "15px" }}>
+              <label style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>🟢 Background Green: {backgroundColor.g.toFixed(2)}</label>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={backgroundColor.g}
+                onInput={(e) => setBackgroundColor(prev => ({ ...prev, g: parseFloat(e.currentTarget.value) }))}
+                style={{ width: "100%" }}
+              />
+            </div>
+            
+            <div style={{ marginBottom: "15px" }}>
+              <label style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>🔵 Background Blue: {backgroundColor.b.toFixed(2)}</label>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={backgroundColor.b}
+                onInput={(e) => setBackgroundColor(prev => ({ ...prev, b: parseFloat(e.currentTarget.value) }))}
+                style={{ width: "100%" }}
+              />
+            </div>
+          </div>
         </div>
       )}
       
@@ -313,6 +459,11 @@ export default function RustWasmGraphics() {
               setColor({ r: 1, g: 0.5, b: 0.2 });
               setShape("triangle");
               setIsAnimating(false);
+              setTranslation({ x: 0, y: 0 });
+              setBackgroundColor({ r: 0, g: 0, b: 0, a: 1 });
+              setWireframeMode(false);
+              setCameraDistance(3);
+              setCameraAngles({ x: 0, y: 0 });
             }}
             style={{
               padding: "12px 24px",
