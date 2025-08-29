@@ -78,12 +78,12 @@ export default function RustWasmGraphics() {
         
         setStatus("Creating graphics engine...");
         
-        console.log('Checking canvas and GraphicsEngine availability...');
+        console.log('WASM initialized, checking for GraphicsEngine...');
         console.log('Canvas ref:', canvasRef.current);
-        console.log('window.GraphicsEngine:', typeof (window as any).GraphicsEngine);
         console.log('wasmBindgen.GraphicsEngine:', typeof wasmBindgen.GraphicsEngine);
         
-        if (canvasRef.current && wasmBindgen.GraphicsEngine) {
+        if (canvasRef.current && typeof wasmBindgen.GraphicsEngine === 'function') {
+          console.log('Creating GraphicsEngine instance...');
           const engine = new wasmBindgen.GraphicsEngine("rust-canvas");
           engineRef.current = engine;
           
@@ -100,7 +100,9 @@ export default function RustWasmGraphics() {
           
           setStatus("Rust + WebAssembly Ready! 🦀✨");
         } else {
-          throw new Error("GraphicsEngine not available or canvas not found");
+          const canvasStatus = canvasRef.current ? "Canvas found" : "Canvas not found";
+          const engineStatus = typeof wasmBindgen.GraphicsEngine === 'function' ? "GraphicsEngine found" : "GraphicsEngine not found";
+          throw new Error(`${canvasStatus}, ${engineStatus}`);
         }
       } catch (error) {
         console.error("WASM loading error:", error);
