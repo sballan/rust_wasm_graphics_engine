@@ -29,7 +29,8 @@
     "@preact/signals-core": "https://esm.sh/*@preact/signals-core@1.5.1",
     "$std/": "https://deno.land/std@0.216.0/",
     "tailwindcss": "npm:tailwindcss@3.4.1",
-    "tailwindcss/": "npm:/tailwindcss@3.4.1/"
+    "tailwindcss/": "npm:/tailwindcss@3.4.1/",
+    "/wasm/graphics_engine.js": "./wasm/graphics_engine.js"
   },
   "compilerOptions": {
     "jsx": "react-jsx",

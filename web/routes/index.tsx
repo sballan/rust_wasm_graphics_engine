@@ -1,12 +1,12 @@
-import GraphicsEngineSimple from "../islands/GraphicsEngineSimple.tsx";
+import RustWasmGraphics from "../islands/RustWasmGraphics.tsx";
 
 export default function Home() {
   return (
     <div style={{
       minHeight: "100vh",
-      backgroundColor: "#f3f4f6"
+      backgroundColor: "#f8f9fa"
     }}>
-      <GraphicsEngineSimple />
+      <RustWasmGraphics />
     </div>
   );
 }

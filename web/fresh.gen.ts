@@ -8,8 +8,9 @@ import * as $api_joke from "./routes/api/joke.ts";
 import * as $greet_name_ from "./routes/greet/[name].tsx";
 import * as $index from "./routes/index.tsx";
 import * as $Counter from "./islands/Counter.tsx";
-import * as $GraphicsEngine from "./islands/GraphicsEngine.tsx";
-import * as $GraphicsEngineSimple from "./islands/GraphicsEngineSimple.tsx";
+import * as $GraphicsViewer from "./islands/GraphicsViewer.tsx";
+import * as $RustWasmGraphics from "./islands/RustWasmGraphics.tsx";
+import * as $SimpleGraphics from "./islands/SimpleGraphics.tsx";
 import type { Manifest } from "$fresh/server.ts";
 
 const manifest = {
@@ -22,8 +23,9 @@ const manifest = {
   },
   islands: {
     "./islands/Counter.tsx": $Counter,
-    "./islands/GraphicsEngine.tsx": $GraphicsEngine,
-    "./islands/GraphicsEngineSimple.tsx": $GraphicsEngineSimple,
+    "./islands/GraphicsViewer.tsx": $GraphicsViewer,
+    "./islands/RustWasmGraphics.tsx": $RustWasmGraphics,
+    "./islands/SimpleGraphics.tsx": $SimpleGraphics,
   },
   baseUrl: import.meta.url,
 } satisfies Manifest;
