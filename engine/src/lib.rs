@@ -146,18 +146,41 @@ impl GraphicsEngine {
     pub fn render_solar_system(&self) {
         self.renderer.clear_3d(self.background_color);
         
-        // Temporary fallback: use 2D rendering with simple scaling
+        // Simple 3D to 2D projection with camera rotation
         for body in &self.solar_system.bodies {
             let position = body.get_position();
-            let scale_factor = 1.0 / self.camera_distance; // Simple zoom
             
-            // Project 3D position to 2D
-            let screen_x = position[0] * scale_factor;
-            let screen_y = position[2] * scale_factor; // Use Z for Y (top-down view)
+            // Apply camera rotation manually
+            let x = position[0];
+            let y = position[1];
+            let z = position[2];
+            
+            // Rotate around Y axis (horizontal rotation)
+            let cos_y = self.camera_angle_y.cos();
+            let sin_y = self.camera_angle_y.sin();
+            let x_rotated = x * cos_y - z * sin_y;
+            let z_rotated = x * sin_y + z * cos_y;
+            
+            // Rotate around X axis (vertical rotation)
+            let cos_x = self.camera_angle_x.cos();
+            let sin_x = self.camera_angle_x.sin();
+            let y_rotated = y * cos_x - z_rotated * sin_x;
+            let z_final = y * sin_x + z_rotated * cos_x;
+            
+            // Apply camera distance (zoom)
+            let scale_factor = 1.0 / self.camera_distance;
+            
+            // Project to screen coordinates
+            let screen_x = x_rotated * scale_factor;
+            let screen_y = y_rotated * scale_factor;
+            
+            // Use z for depth-based scaling (simple perspective)
+            let depth_factor = 1.0 / (1.0 + z_final * 0.1).max(0.1);
+            let final_radius = body.radius * scale_factor * depth_factor;
             
             self.renderer.render_sphere(
                 [screen_x, screen_y, 0.0], 
-                body.radius * scale_factor, 
+                final_radius, 
                 body.color, 
                 self.wireframe_mode
             );
