@@ -238,11 +238,84 @@ export class GraphicsEngine {
     set_color(r, g, b) {
         wasm.graphicsengine_set_color(this.__wbg_ptr, r, g, b);
     }
+    /**
+     * @param {number} x
+     * @param {number} y
+     */
+    set_translation(x, y) {
+        wasm.graphicsengine_set_translation(this.__wbg_ptr, x, y);
+    }
+    /**
+     * @param {number} r
+     * @param {number} g
+     * @param {number} b
+     * @param {number} a
+     */
+    set_background_color(r, g, b, a) {
+        wasm.graphicsengine_set_background_color(this.__wbg_ptr, r, g, b, a);
+    }
+    /**
+     * @param {boolean} wireframe
+     */
+    set_wireframe_mode(wireframe) {
+        wasm.graphicsengine_set_wireframe_mode(this.__wbg_ptr, wireframe);
+    }
+    /**
+     * @param {number} distance
+     */
+    set_camera_distance(distance) {
+        wasm.graphicsengine_set_camera_distance(this.__wbg_ptr, distance);
+    }
+    /**
+     * @param {number} angle_x
+     * @param {number} angle_y
+     */
+    set_camera_angles(angle_x, angle_y) {
+        wasm.graphicsengine_set_camera_angles(this.__wbg_ptr, angle_x, angle_y);
+    }
     render() {
         wasm.graphicsengine_render(this.__wbg_ptr);
     }
     render_cube() {
         wasm.graphicsengine_render_cube(this.__wbg_ptr);
+    }
+    /**
+     * @param {number} delta_time
+     */
+    update_solar_system(delta_time) {
+        wasm.graphicsengine_update_solar_system(this.__wbg_ptr, delta_time);
+    }
+    /**
+     * @param {number} scale
+     */
+    set_time_scale(scale) {
+        wasm.graphicsengine_set_time_scale(this.__wbg_ptr, scale);
+    }
+    render_solar_system() {
+        wasm.graphicsengine_render_solar_system(this.__wbg_ptr);
+    }
+    /**
+     * @returns {number}
+     */
+    get_planet_count() {
+        const ret = wasm.graphicsengine_get_planet_count(this.__wbg_ptr);
+        return ret >>> 0;
+    }
+    /**
+     * @param {number} index
+     * @returns {string}
+     */
+    get_planet_name(index) {
+        let deferred1_0;
+        let deferred1_1;
+        try {
+            const ret = wasm.graphicsengine_get_planet_name(this.__wbg_ptr, index);
+            deferred1_0 = ret[0];
+            deferred1_1 = ret[1];
+            return getStringFromWasm0(ret[0], ret[1]);
+        } finally {
+            wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+        }
     }
 }
 
@@ -318,15 +391,18 @@ function __wbg_get_imports() {
         const ret = arg0.createShader(arg1 >>> 0);
         return isLikeNone(ret) ? 0 : addToExternrefTable0(ret);
     };
+    imports.wbg.__wbg_depthFunc_2906916f4536d5d7 = function(arg0, arg1) {
+        arg0.depthFunc(arg1 >>> 0);
+    };
+    imports.wbg.__wbg_disable_8b53998501a7a85b = function(arg0, arg1) {
+        arg0.disable(arg1 >>> 0);
+    };
     imports.wbg.__wbg_document_d249400bd7bd996d = function(arg0) {
         const ret = arg0.document;
         return isLikeNone(ret) ? 0 : addToExternrefTable0(ret);
     };
     imports.wbg.__wbg_drawArrays_6acaa2669c105f3a = function(arg0, arg1, arg2, arg3) {
         arg0.drawArrays(arg1 >>> 0, arg2, arg3);
-    };
-    imports.wbg.__wbg_drawElements_16199ef1cc58b16a = function(arg0, arg1, arg2, arg3, arg4) {
-        arg0.drawElements(arg1 >>> 0, arg2, arg3 >>> 0, arg4);
     };
     imports.wbg.__wbg_enableVertexAttribArray_607be07574298e5e = function(arg0, arg1) {
         arg0.enableVertexAttribArray(arg1 >>> 0);
@@ -407,10 +483,6 @@ function __wbg_get_imports() {
     };
     imports.wbg.__wbg_newnoargs_105ed471475aaf50 = function(arg0, arg1) {
         const ret = new Function(getStringFromWasm0(arg0, arg1));
-        return ret;
-    };
-    imports.wbg.__wbg_newwithbyteoffsetandlength_d4a86622320ea258 = function(arg0, arg1, arg2) {
-        const ret = new Uint16Array(arg0, arg1 >>> 0, arg2 >>> 0);
         return ret;
     };
     imports.wbg.__wbg_newwithbyteoffsetandlength_e6b7e69acd4c7354 = function(arg0, arg1, arg2) {

@@ -7,7 +7,7 @@ export default function App({ Component }: PageProps) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Rust WASM Graphics Engine</title>
         <link rel="stylesheet" href="/styles.css" />
-        <script src="/wasm-simple/graphics_engine.js"></script>
+        <script type="module" src="/wasm-init.js"></script>
       </head>
       <body>
         <Component />

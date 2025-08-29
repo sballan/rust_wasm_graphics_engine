@@ -1,4 +1,5 @@
 use web_sys::WebGlRenderingContext;
+use std::f32::consts::PI;
 
 pub trait Shape {
     fn get_vertices(&self) -> &[f32];
@@ -85,72 +86,91 @@ impl Shape for Rectangle {
     }
 }
 
-// Future: This is how we'd implement a proper 3D cube
-/*
-pub struct Cube {
-    vertices: [f32; 24],
-    indices: [u16; 36],
-    wireframe_indices: [u16; 24],
+pub struct Sphere {
+    vertices: Vec<f32>,
 }
 
-impl Cube {
-    pub fn new() -> Self {
-        // 8 vertices of a cube
+impl Sphere {
+    pub fn new(radius: f32, latitude_segments: u32, longitude_segments: u32) -> Self {
+        let mut vertices = Vec::new();
+        
+        // Generate triangles directly (no indices)
+        for lat in 0..latitude_segments {
+            let theta1 = lat as f32 * PI / latitude_segments as f32;
+            let theta2 = (lat + 1) as f32 * PI / latitude_segments as f32;
+            
+            let sin_theta1 = theta1.sin();
+            let cos_theta1 = theta1.cos();
+            let sin_theta2 = theta2.sin();
+            let cos_theta2 = theta2.cos();
+            
+            for lon in 0..longitude_segments {
+                let phi1 = lon as f32 * 2.0 * PI / longitude_segments as f32;
+                let phi2 = (lon + 1) as f32 * 2.0 * PI / longitude_segments as f32;
+                
+                let sin_phi1 = phi1.sin();
+                let cos_phi1 = phi1.cos();
+                let sin_phi2 = phi2.sin();
+                let cos_phi2 = phi2.cos();
+                
+                // First triangle
+                // Vertex 1 (lat, lon)
+                vertices.push(radius * sin_theta1 * cos_phi1);
+                vertices.push(radius * cos_theta1);
+                vertices.push(radius * sin_theta1 * sin_phi1);
+                
+                // Vertex 2 (lat+1, lon)
+                vertices.push(radius * sin_theta2 * cos_phi1);
+                vertices.push(radius * cos_theta2);
+                vertices.push(radius * sin_theta2 * sin_phi1);
+                
+                // Vertex 3 (lat, lon+1)
+                vertices.push(radius * sin_theta1 * cos_phi2);
+                vertices.push(radius * cos_theta1);
+                vertices.push(radius * sin_theta1 * sin_phi2);
+                
+                // Second triangle
+                // Vertex 1 (lat+1, lon)
+                vertices.push(radius * sin_theta2 * cos_phi1);
+                vertices.push(radius * cos_theta2);
+                vertices.push(radius * sin_theta2 * sin_phi1);
+                
+                // Vertex 2 (lat+1, lon+1)
+                vertices.push(radius * sin_theta2 * cos_phi2);
+                vertices.push(radius * cos_theta2);
+                vertices.push(radius * sin_theta2 * sin_phi2);
+                
+                // Vertex 3 (lat, lon+1)
+                vertices.push(radius * sin_theta1 * cos_phi2);
+                vertices.push(radius * cos_theta1);
+                vertices.push(radius * sin_theta1 * sin_phi2);
+            }
+        }
+        
         Self {
-            vertices: [
-                -0.5, -0.5, -0.5,  // 0: back-bottom-left
-                 0.5, -0.5, -0.5,  // 1: back-bottom-right
-                 0.5,  0.5, -0.5,  // 2: back-top-right
-                -0.5,  0.5, -0.5,  // 3: back-top-left
-                -0.5, -0.5,  0.5,  // 4: front-bottom-left
-                 0.5, -0.5,  0.5,  // 5: front-bottom-right
-                 0.5,  0.5,  0.5,  // 6: front-top-right
-                -0.5,  0.5,  0.5,  // 7: front-top-left
-            ],
-            indices: [/* proper 3D cube face indices */],
-            wireframe_indices: [/* 12 edges */],
+            vertices,
         }
     }
 }
 
-impl Shape for Cube {
+impl Shape for Sphere {
     fn get_vertices(&self) -> &[f32] {
         &self.vertices
     }
-
-    fn get_indices(&self) -> Option<&[u16]> {
-        Some(&self.indices)
-    }
-
+    
     fn get_vertex_count(&self) -> i32 {
-        if let Some(indices) = self.get_indices() {
-            indices.len() as i32
-        } else {
-            8
-        }
+        (self.vertices.len() / 3) as i32
     }
-
+    
     fn get_draw_mode(&self, wireframe: bool) -> u32 {
         if wireframe {
-            WebGlRenderingContext::LINES
+            WebGlRenderingContext::LINE_STRIP
         } else {
             WebGlRenderingContext::TRIANGLES
         }
     }
-
+    
     fn draw(&self, context: &WebGlRenderingContext, wireframe: bool) {
-        let indices = if wireframe {
-            &self.wireframe_indices
-        } else {
-            &self.indices
-        };
-        
-        context.draw_elements_with_i32(
-            self.get_draw_mode(wireframe),
-            indices.len() as i32,
-            WebGlRenderingContext::UNSIGNED_SHORT,
-            0,
-        );
+        context.draw_arrays(self.get_draw_mode(wireframe), 0, self.get_vertex_count());
     }
 }
-*/

@@ -7,11 +7,13 @@ import * as $_app from "./routes/_app.tsx";
 import * as $api_joke from "./routes/api/joke.ts";
 import * as $greet_name_ from "./routes/greet/[name].tsx";
 import * as $index from "./routes/index.tsx";
+import * as $solar_system from "./routes/solar-system.tsx";
 import * as $Counter from "./islands/Counter.tsx";
 import * as $GraphicsViewer from "./islands/GraphicsViewer.tsx";
 import * as $RustWasmGraphics from "./islands/RustWasmGraphics.tsx";
 import * as $SimpleGraphics from "./islands/SimpleGraphics.tsx";
 import * as $SimpleWasm from "./islands/SimpleWasm.tsx";
+import * as $SolarSystem from "./islands/SolarSystem.tsx";
 import type { Manifest } from "$fresh/server.ts";
 
 const manifest = {
@@ -21,6 +23,7 @@ const manifest = {
     "./routes/api/joke.ts": $api_joke,
     "./routes/greet/[name].tsx": $greet_name_,
     "./routes/index.tsx": $index,
+    "./routes/solar-system.tsx": $solar_system,
   },
   islands: {
     "./islands/Counter.tsx": $Counter,
@@ -28,6 +31,7 @@ const manifest = {
     "./islands/RustWasmGraphics.tsx": $RustWasmGraphics,
     "./islands/SimpleGraphics.tsx": $SimpleGraphics,
     "./islands/SimpleWasm.tsx": $SimpleWasm,
+    "./islands/SolarSystem.tsx": $SolarSystem,
   },
   baseUrl: import.meta.url,
 } satisfies Manifest;

@@ -7,9 +7,11 @@ mod math;
 mod geometry;
 mod renderer;
 mod shapes;
+mod solar_system;
 
 use shaders::{compile_shader, link_program, VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE};
 use renderer::Renderer;
+use solar_system::SolarSystem;
 
 #[wasm_bindgen]
 pub struct GraphicsEngine {
@@ -23,6 +25,7 @@ pub struct GraphicsEngine {
     camera_distance: f32,
     camera_angle_x: f32,
     camera_angle_y: f32,
+    solar_system: SolarSystem,
 }
 
 #[wasm_bindgen]
@@ -70,6 +73,7 @@ impl GraphicsEngine {
             camera_distance: 3.0,
             camera_angle_x: 0.0,
             camera_angle_y: 0.0,
+            solar_system: SolarSystem::new(),
         })
     }
 
@@ -129,5 +133,33 @@ impl GraphicsEngine {
             self.camera_angle_y,
             self.wireframe_mode,
         );
+    }
+    
+    pub fn update_solar_system(&mut self, delta_time: f32) {
+        self.solar_system.update(delta_time);
+    }
+    
+    pub fn set_time_scale(&mut self, scale: f32) {
+        self.solar_system.set_time_scale(scale);
+    }
+    
+    pub fn render_solar_system(&self) {
+        self.renderer.clear_3d(self.background_color);
+        
+        // Render each celestial body
+        for body in &self.solar_system.bodies {
+            let position = body.get_position();
+            self.renderer.render_sphere(position, body.radius, body.color, self.wireframe_mode);
+        }
+    }
+    
+    pub fn get_planet_count(&self) -> usize {
+        self.solar_system.bodies.len()
+    }
+    
+    pub fn get_planet_name(&self, index: usize) -> String {
+        self.solar_system.get_body(index)
+            .map(|body| body.name.clone())
+            .unwrap_or_default()
     }
 }

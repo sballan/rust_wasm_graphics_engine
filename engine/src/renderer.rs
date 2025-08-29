@@ -1,8 +1,8 @@
-use web_sys::{WebGlProgram, WebGlRenderingContext};
+use web_sys::{WebGlProgram, WebGlRenderingContext, WebGlBuffer};
 use wasm_bindgen::JsCast;
 
 use crate::math::create_rotation_matrix_2d;
-use crate::shapes::{Shape, Triangle, Rectangle};
+use crate::shapes::{Shape, Triangle, Rectangle, Sphere};
 
 pub struct Renderer {
     pub context: WebGlRenderingContext,
@@ -36,6 +36,14 @@ impl Renderer {
                        _camera_distance: f32, _camera_angle_x: f32, _camera_angle_y: f32, wireframe_mode: bool) {
         let rectangle = Rectangle::new();
         self.render_shape(&rectangle, rotation, scale, color, translation, wireframe_mode);
+    }
+    
+    pub fn render_sphere(&self, position: [f32; 3], radius: f32, color: [f32; 3], wireframe_mode: bool) {
+        let sphere = Sphere::new(radius, 16, 16);
+        
+        // For now, use 2D translation until we update the matrix math
+        let translation_2d = [position[0], position[1]];
+        self.render_shape(&sphere, 0.0, 1.0, color, translation_2d, wireframe_mode);
     }
 
     // Generic shape rendering method
