@@ -11,6 +11,7 @@ import * as $Counter from "./islands/Counter.tsx";
 import * as $GraphicsViewer from "./islands/GraphicsViewer.tsx";
 import * as $RustWasmGraphics from "./islands/RustWasmGraphics.tsx";
 import * as $SimpleGraphics from "./islands/SimpleGraphics.tsx";
+import * as $SimpleWasm from "./islands/SimpleWasm.tsx";
 import type { Manifest } from "$fresh/server.ts";
 
 const manifest = {
@@ -26,6 +27,7 @@ const manifest = {
     "./islands/GraphicsViewer.tsx": $GraphicsViewer,
     "./islands/RustWasmGraphics.tsx": $RustWasmGraphics,
     "./islands/SimpleGraphics.tsx": $SimpleGraphics,
+    "./islands/SimpleWasm.tsx": $SimpleWasm,
   },
   baseUrl: import.meta.url,
 } satisfies Manifest;

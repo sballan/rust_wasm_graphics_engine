@@ -32,25 +32,39 @@ export default function RustWasmGraphics() {
         await new Promise((resolve, reject) => {
           script.onload = () => {
             console.log('WASM script loaded');
-            console.log('window.wasm_bindgen available:', typeof window.wasm_bindgen);
-            console.log('global wasm_bindgen available:', typeof (globalThis as any).wasm_bindgen);
-            // Give a small delay for the script to fully initialize
-            setTimeout(resolve, 100);
+            // Check all possible locations for wasm_bindgen
+            console.log('window.wasm_bindgen:', typeof window.wasm_bindgen);
+            console.log('globalThis.wasm_bindgen:', typeof (globalThis as any).wasm_bindgen);
+            
+            // Since wasm_bindgen is declared with 'let', we need to wait for it to be assigned
+            // Let's try accessing it from the global scope after a delay
+            setTimeout(() => {
+              try {
+                // Try to access it via eval (it should be in global scope after script execution)
+                const wasmBindgenCheck = eval('typeof wasm_bindgen');
+                console.log('eval wasm_bindgen type:', wasmBindgenCheck);
+                
+                if (wasmBindgenCheck === 'function') {
+                  (window as any).wasm_bindgen = eval('wasm_bindgen');
+                  console.log('Successfully captured wasm_bindgen');
+                }
+              } catch (e) {
+                console.log('Could not eval wasm_bindgen:', e);
+              }
+              resolve();
+            }, 200);
           };
-          script.onerror = (error) => {
-            console.error('Failed to load WASM script:', error);
-            reject(error);
-          };
+          script.onerror = reject;
           document.head.appendChild(script);
         });
         
         setStatus("Checking WASM availability...");
         
-        // Access wasm_bindgen from globalThis since it's a global variable
-        const wasmBindgen = (globalThis as any).wasm_bindgen;
+        // Now try to get wasm_bindgen
+        let wasmBindgen = (window as any).wasm_bindgen;
         
         if (typeof wasmBindgen !== 'function') {
-          throw new Error(`wasm_bindgen not available. Type: ${typeof wasmBindgen}`);
+          throw new Error(`wasm_bindgen still not available after loading. Type: ${typeof wasmBindgen}`);
         }
         
         setStatus("Initializing WASM module...");

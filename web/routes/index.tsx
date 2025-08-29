@@ -1,4 +1,4 @@
-import RustWasmGraphics from "../islands/RustWasmGraphics.tsx";
+import SimpleWasm from "../islands/SimpleWasm.tsx";
 
 export default function Home() {
   return (
@@ -6,7 +6,7 @@ export default function Home() {
       minHeight: "100vh",
       backgroundColor: "#f8f9fa"
     }}>
-      <RustWasmGraphics />
+      <SimpleWasm />
     </div>
   );
 }
