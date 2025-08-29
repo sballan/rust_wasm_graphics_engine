@@ -85,3 +85,23 @@ pub fn create_3d_transform_matrix(
     let combined_camera = multiply_matrices(&camera_rotation_x, &camera_rotation_y);
     multiply_matrices(&combined_object, &combined_camera)
 }
+
+pub fn create_view_matrix(camera_distance: f32, camera_angle_x: f32, camera_angle_y: f32) -> [f32; 16] {
+    // Create camera matrix: translate back, then apply rotations
+    let translation = create_translation_matrix(0.0, 0.0, -camera_distance);
+    let rotation_x = create_rotation_x_matrix(camera_angle_x);
+    let rotation_y = create_rotation_y_matrix(camera_angle_y);
+    
+    // Apply rotations first, then translation
+    let rotation = multiply_matrices(&rotation_y, &rotation_x);
+    multiply_matrices(&rotation, &translation)
+}
+
+pub fn create_model_matrix(position: [f32; 3], scale: f32) -> [f32; 16] {
+    [
+        scale, 0.0, 0.0, 0.0,
+        0.0, scale, 0.0, 0.0,
+        0.0, 0.0, scale, 0.0,
+        position[0], position[1], position[2], 1.0,
+    ]
+}

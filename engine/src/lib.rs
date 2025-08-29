@@ -146,10 +146,21 @@ impl GraphicsEngine {
     pub fn render_solar_system(&self) {
         self.renderer.clear_3d(self.background_color);
         
-        // Render each celestial body
+        // Temporary fallback: use 2D rendering with simple scaling
         for body in &self.solar_system.bodies {
             let position = body.get_position();
-            self.renderer.render_sphere(position, body.radius, body.color, self.wireframe_mode);
+            let scale_factor = 1.0 / self.camera_distance; // Simple zoom
+            
+            // Project 3D position to 2D
+            let screen_x = position[0] * scale_factor;
+            let screen_y = position[2] * scale_factor; // Use Z for Y (top-down view)
+            
+            self.renderer.render_sphere(
+                [screen_x, screen_y, 0.0], 
+                body.radius * scale_factor, 
+                body.color, 
+                self.wireframe_mode
+            );
         }
     }
     
