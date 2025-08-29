@@ -1,9 +1,12 @@
-import GraphicsEngine from "../islands/GraphicsEngine.tsx";
+import GraphicsEngineSimple from "../islands/GraphicsEngineSimple.tsx";
 
 export default function Home() {
   return (
-    <div class="min-h-screen bg-gray-100">
-      <GraphicsEngine />
+    <div style={{
+      minHeight: "100vh",
+      backgroundColor: "#f3f4f6"
+    }}>
+      <GraphicsEngineSimple />
     </div>
   );
 }
