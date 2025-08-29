@@ -2,7 +2,7 @@ use web_sys::{WebGlProgram, WebGlRenderingContext};
 use wasm_bindgen::JsCast;
 
 use crate::math::create_rotation_matrix_2d;
-use crate::shapes::{Shape, Triangle, Quad};
+use crate::shapes::{Shape, Triangle, Rectangle};
 
 pub struct Renderer {
     pub context: WebGlRenderingContext,
@@ -34,8 +34,8 @@ impl Renderer {
 
     pub fn render_cube(&self, rotation: f32, scale: f32, color: [f32; 3], translation: [f32; 2], 
                        _camera_distance: f32, _camera_angle_x: f32, _camera_angle_y: f32, wireframe_mode: bool) {
-        let quad = Quad::new();
-        self.render_shape(&quad, rotation, scale, color, translation, wireframe_mode);
+        let rectangle = Rectangle::new();
+        self.render_shape(&rectangle, rotation, scale, color, translation, wireframe_mode);
     }
 
     // Generic shape rendering method

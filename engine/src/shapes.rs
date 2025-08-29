@@ -46,11 +46,11 @@ impl Shape for Triangle {
     }
 }
 
-pub struct Quad {
+pub struct Rectangle {
     vertices: [f32; 12],
 }
 
-impl Quad {
+impl Rectangle {
     pub fn new() -> Self {
         Self {
             vertices: [
@@ -63,7 +63,7 @@ impl Quad {
     }
 }
 
-impl Shape for Quad {
+impl Shape for Rectangle {
     fn get_vertices(&self) -> &[f32] {
         &self.vertices
     }
