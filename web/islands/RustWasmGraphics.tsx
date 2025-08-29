@@ -5,7 +5,6 @@ declare global {
     wasm_bindgen: any;
     GraphicsEngine: any;
   }
-  var wasm_bindgen: any;
 }
 
 export default function RustWasmGraphics() {
@@ -28,40 +27,64 @@ export default function RustWasmGraphics() {
 
     const loadWasm = async () => {
       try {
-        setStatus("Loading WASM script...");
+        setStatus("Waiting for WASM to load...");
         
-        // Create and load the WASM script
-        const script = document.createElement('script');
-        script.src = '/wasm-simple/graphics_engine.js';
+        // Wait for wasm_bindgen to become available with polling
+        let wasmBindgen;
+        let attempts = 0;
+        const maxAttempts = 50; // 5 seconds max
         
-        await new Promise((resolve, reject) => {
-          script.onload = () => {
-            console.log('WASM script loaded');
-            setTimeout(() => {
-              if (typeof (window as any).wasm_bindgen === 'function') {
-                resolve(undefined);
-              } else {
-                reject(new Error('wasm_bindgen not available after script load'));
-              }
-            }, 100);
-          };
-          script.onerror = reject;
-          document.head.appendChild(script);
-        });
+        console.log('Starting WASM polling...');
+        
+        while (attempts < maxAttempts) {
+          wasmBindgen = (window as any).wasm_bindgen;
+          console.log(`Attempt ${attempts}: wasm_bindgen type:`, typeof wasmBindgen);
+          
+          if (typeof wasmBindgen === 'function') {
+            console.log('Found wasm_bindgen!');
+            break;
+          }
+          
+          // Also check global scope
+          try {
+            const globalWasm = eval('typeof wasm_bindgen');
+            console.log(`Attempt ${attempts}: global wasm_bindgen type:`, globalWasm);
+            if (globalWasm === 'function') {
+              wasmBindgen = eval('wasm_bindgen');
+              console.log('Found wasm_bindgen in global scope!');
+              break;
+            }
+          } catch (e) {
+            console.log(`Attempt ${attempts}: Could not eval wasm_bindgen:`, e);
+          }
+          
+          await new Promise(resolve => setTimeout(resolve, 100));
+          attempts++;
+        }
+        
+        if (typeof wasmBindgen !== 'function') {
+          // List all window properties that might be related
+          const windowProps = Object.getOwnPropertyNames(window).filter(prop => 
+            prop.includes('wasm') || prop.includes('bindgen') || prop.includes('graphics')
+          );
+          console.log('Window properties containing wasm/bindgen/graphics:', windowProps);
+          
+          throw new Error(`wasm_bindgen not loaded after ${maxAttempts * 100}ms. Type: ${typeof wasmBindgen}`);
+        }
         
         setStatus("Initializing WASM module...");
-        
-        const wasmBindgen = (window as any).wasm_bindgen;
-        if (typeof wasmBindgen !== 'function') {
-          throw new Error(`wasm_bindgen not found. Type: ${typeof wasmBindgen}`);
-        }
         
         await wasmBindgen();
         
         setStatus("Creating graphics engine...");
         
-        if (canvasRef.current && (window as any).GraphicsEngine) {
-          const engine = new (window as any).GraphicsEngine("rust-canvas");
+        console.log('Checking canvas and GraphicsEngine availability...');
+        console.log('Canvas ref:', canvasRef.current);
+        console.log('window.GraphicsEngine:', typeof (window as any).GraphicsEngine);
+        console.log('wasmBindgen.GraphicsEngine:', typeof wasmBindgen.GraphicsEngine);
+        
+        if (canvasRef.current && wasmBindgen.GraphicsEngine) {
+          const engine = new wasmBindgen.GraphicsEngine("rust-canvas");
           engineRef.current = engine;
           
           // Set initial values and render
