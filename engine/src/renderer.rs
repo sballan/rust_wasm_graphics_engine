@@ -1,6 +1,6 @@
 use web_sys::{WebGlProgram, WebGlRenderingContext};
 
-use crate::math::{create_rotation_matrix_2d, create_view_matrix, create_model_matrix, multiply_matrices, create_perspective_matrix};
+use crate::math::create_rotation_matrix_2d;
 use crate::shapes::{Shape, Triangle, Rectangle, Sphere};
 
 pub struct Renderer {
@@ -45,60 +45,7 @@ impl Renderer {
         self.render_shape(&sphere, 0.0, 1.0, color, translation_2d, wireframe_mode);
     }
     
-    pub fn render_sphere_3d(&self, position: [f32; 3], radius: f32, color: [f32; 3], 
-                            camera_distance: f32, camera_angle_x: f32, camera_angle_y: f32, 
-                            wireframe_mode: bool) {
-        let sphere = Sphere::new(radius, 16, 16);
-        let vertices = sphere.get_vertices();
-        
-        // Create vertex buffer
-        let position_attribute_location = self.context.get_attrib_location(&self.program, "position");
-        let buffer = self.context.create_buffer().unwrap();
-        self.context.bind_buffer(WebGlRenderingContext::ARRAY_BUFFER, Some(&buffer));
-        
-        unsafe {
-            let positions_array_buf_view = js_sys::Float32Array::view(vertices);
-            self.context.buffer_data_with_array_buffer_view(
-                WebGlRenderingContext::ARRAY_BUFFER,
-                &positions_array_buf_view,
-                WebGlRenderingContext::STATIC_DRAW,
-            );
-        }
-        
-        self.context.vertex_attrib_pointer_with_i32(
-            position_attribute_location as u32,
-            3,
-            WebGlRenderingContext::FLOAT,
-            false,
-            0,
-            0,
-        );
-        self.context.enable_vertex_attrib_array(position_attribute_location as u32);
-        
-        // Create transformation matrices
-        let model_matrix = create_model_matrix(position, 1.0);
-        let view_matrix = create_view_matrix(camera_distance, camera_angle_x, camera_angle_y);
-        let projection_matrix = create_perspective_matrix(
-            std::f32::consts::PI / 4.0,  // 45 degree FOV
-            1.0,  // aspect ratio (assuming square canvas)
-            0.1,  // near plane
-            100.0  // far plane
-        );
-        
-        // Combine matrices: MVP = Projection * View * Model
-        let model_view = multiply_matrices(&view_matrix, &model_matrix);
-        let mvp_matrix = multiply_matrices(&projection_matrix, &model_view);
-        
-        // Set uniforms
-        let matrix_location = self.context.get_uniform_location(&self.program, "matrix");
-        let color_location = self.context.get_uniform_location(&self.program, "uColor");
-        
-        self.context.uniform_matrix4fv_with_f32_array(matrix_location.as_ref(), false, &mvp_matrix);
-        self.context.uniform3fv_with_f32_array(color_location.as_ref(), &color);
-        
-        // Draw
-        sphere.draw(&self.context, wireframe_mode);
-    }
+    // render_sphere_3d removed - using manual projection in GraphicsEngine instead
 
     // Generic shape rendering method
     fn render_shape(&self, shape: &dyn Shape, rotation: f32, scale: f32, color: [f32; 3], translation: [f32; 2], wireframe_mode: bool) {

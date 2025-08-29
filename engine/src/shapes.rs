@@ -3,7 +3,6 @@ use std::f32::consts::PI;
 
 pub trait Shape {
     fn get_vertices(&self) -> &[f32];
-    fn get_indices(&self) -> Option<&[u16]> { None }
     fn get_vertex_count(&self) -> i32;
     fn get_draw_mode(&self, wireframe: bool) -> u32;
     fn draw(&self, context: &WebGlRenderingContext, wireframe: bool);

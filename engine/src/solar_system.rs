@@ -92,7 +92,5 @@ impl SolarSystem {
         self.bodies.get(index)
     }
     
-    pub fn get_body_mut(&mut self, index: usize) -> Option<&mut CelestialBody> {
-        self.bodies.get_mut(index)
-    }
+    // get_body_mut removed - not used in current implementation
 }

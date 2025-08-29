@@ -4,7 +4,6 @@ use web_sys::WebGlRenderingContext;
 
 mod shaders;
 mod math;
-mod geometry;
 mod renderer;
 mod shapes;
 mod solar_system;
