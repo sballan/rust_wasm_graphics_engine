@@ -6,6 +6,7 @@ mod shaders;
 mod math;
 mod geometry;
 mod renderer;
+mod shapes;
 
 use shaders::{compile_shader, link_program, VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE};
 use renderer::Renderer;

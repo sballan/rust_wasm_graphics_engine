@@ -1,7 +1,8 @@
 use web_sys::{WebGlProgram, WebGlRenderingContext};
+use wasm_bindgen::JsCast;
 
-use crate::geometry::{TRIANGLE_VERTICES, CUBE_VERTICES, CUBE_INDICES, CUBE_WIREFRAME_INDICES};
-use crate::math::{create_rotation_matrix_2d, create_perspective_matrix, create_3d_transform_matrix, multiply_matrices};
+use crate::math::create_rotation_matrix_2d;
+use crate::shapes::{Shape, Triangle, Quad};
 
 pub struct Renderer {
     pub context: WebGlRenderingContext,
@@ -27,14 +28,26 @@ impl Renderer {
     }
 
     pub fn render_triangle(&self, rotation: f32, scale: f32, color: [f32; 3], translation: [f32; 2], wireframe_mode: bool) {
-        let vertices = TRIANGLE_VERTICES;
+        let triangle = Triangle::new();
+        self.render_shape(&triangle, rotation, scale, color, translation, wireframe_mode);
+    }
+
+    pub fn render_cube(&self, rotation: f32, scale: f32, color: [f32; 3], translation: [f32; 2], 
+                       _camera_distance: f32, _camera_angle_x: f32, _camera_angle_y: f32, wireframe_mode: bool) {
+        let quad = Quad::new();
+        self.render_shape(&quad, rotation, scale, color, translation, wireframe_mode);
+    }
+
+    // Generic shape rendering method
+    fn render_shape(&self, shape: &dyn Shape, rotation: f32, scale: f32, color: [f32; 3], translation: [f32; 2], wireframe_mode: bool) {
+        let vertices = shape.get_vertices();
 
         let position_attribute_location = self.context.get_attrib_location(&self.program, "position");
         let buffer = self.context.create_buffer().unwrap();
         self.context.bind_buffer(WebGlRenderingContext::ARRAY_BUFFER, Some(&buffer));
 
         unsafe {
-            let positions_array_buf_view = js_sys::Float32Array::view(&vertices);
+            let positions_array_buf_view = js_sys::Float32Array::view(vertices);
             self.context.buffer_data_with_array_buffer_view(
                 WebGlRenderingContext::ARRAY_BUFFER,
                 &positions_array_buf_view,
@@ -60,71 +73,7 @@ impl Renderer {
         self.context.uniform_matrix4fv_with_f32_array(matrix_location.as_ref(), false, &matrix);
         self.context.uniform3fv_with_f32_array(color_location.as_ref(), &color);
 
-        if wireframe_mode {
-            self.context.draw_arrays(WebGlRenderingContext::LINE_LOOP, 0, 3);
-        } else {
-            self.context.draw_arrays(WebGlRenderingContext::TRIANGLES, 0, 3);
-        }
-    }
-
-    pub fn render_cube(&self, rotation: f32, scale: f32, color: [f32; 3], translation: [f32; 2], 
-                       _camera_distance: f32, _camera_angle_x: f32, _camera_angle_y: f32, wireframe_mode: bool) {
-        
-        // Just render the first 4 vertices as a simple quad to test visibility
-        let simple_quad: [f32; 12] = [
-            -0.5, -0.5, 0.0,  // bottom-left
-             0.5, -0.5, 0.0,  // bottom-right
-             0.5,  0.5, 0.0,  // top-right
-            -0.5,  0.5, 0.0,  // top-left
-        ];
-
-        let position_attribute_location = self.context.get_attrib_location(&self.program, "position");
-        let buffer = self.context.create_buffer().unwrap();
-        self.context.bind_buffer(WebGlRenderingContext::ARRAY_BUFFER, Some(&buffer));
-
-        unsafe {
-            let positions_array_buf_view = js_sys::Float32Array::view(&simple_quad);
-            self.context.buffer_data_with_array_buffer_view(
-                WebGlRenderingContext::ARRAY_BUFFER,
-                &positions_array_buf_view,
-                WebGlRenderingContext::STATIC_DRAW,
-            );
-        }
-
-        self.context.vertex_attrib_pointer_with_i32(
-            position_attribute_location as u32,
-            3,
-            WebGlRenderingContext::FLOAT,
-            false,
-            0,
-            0,
-        );
-        self.context.enable_vertex_attrib_array(position_attribute_location as u32);
-
-        let matrix_location = self.context.get_uniform_location(&self.program, "matrix");
-        let color_location = self.context.get_uniform_location(&self.program, "uColor");
-        
-        // Use the same simple 2D matrix as triangle
-        let cos = rotation.cos();
-        let sin = rotation.sin();
-        let s = scale;
-        
-        let matrix: [f32; 16] = [
-            cos * s, sin * s, 0.0, 0.0,
-            -sin * s, cos * s, 0.0, 0.0,
-            0.0, 0.0, 1.0, 0.0,
-            translation[0], translation[1], 0.0, 1.0,
-        ];
-        
-        self.context.uniform_matrix4fv_with_f32_array(matrix_location.as_ref(), false, &matrix);
-        self.context.uniform3fv_with_f32_array(color_location.as_ref(), &color);
-
-        if wireframe_mode {
-            // Draw as line loop
-            self.context.draw_arrays(WebGlRenderingContext::LINE_LOOP, 0, 4);
-        } else {
-            // Draw as triangle fan (forms a quad)
-            self.context.draw_arrays(WebGlRenderingContext::TRIANGLE_FAN, 0, 4);
-        }
+        // Use the shape's own draw method
+        shape.draw(&self.context, wireframe_mode);
     }
 }
