@@ -5,7 +5,10 @@ use web_sys::WebGlRenderingContext;
 mod shaders;
 mod math;
 mod renderer;
-mod shapes;
+mod shape_trait;
+mod sphere;
+mod triangle; 
+mod rectangle;
 mod solar_system;
 
 use shaders::{compile_shader, link_program, VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE};

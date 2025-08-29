@@ -410,6 +410,9 @@ function __wbg_get_imports() {
     imports.wbg.__wbg_enable_d183fef39258803f = function(arg0, arg1) {
         arg0.enable(arg1 >>> 0);
     };
+    imports.wbg.__wbg_error_524f506f44df1645 = function(arg0) {
+        console.error(arg0);
+    };
     imports.wbg.__wbg_getAttribLocation_9db82d01924fa43d = function(arg0, arg1, arg2, arg3) {
         const ret = arg0.getAttribLocation(arg1, getStringFromWasm0(arg2, arg3));
         return ret;
