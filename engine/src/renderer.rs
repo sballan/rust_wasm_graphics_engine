@@ -21,6 +21,8 @@ impl Renderer {
     pub fn clear_3d(&self, background_color: [f32; 4]) {
         self.context.clear_color(background_color[0], background_color[1], background_color[2], background_color[3]);
         self.context.enable(WebGlRenderingContext::DEPTH_TEST);
+        self.context.depth_func(WebGlRenderingContext::LESS);
+        self.context.disable(WebGlRenderingContext::CULL_FACE); // Show both front and back faces
         self.context.clear(WebGlRenderingContext::COLOR_BUFFER_BIT | WebGlRenderingContext::DEPTH_BUFFER_BIT);
     }
 
@@ -128,20 +130,45 @@ impl Renderer {
         let far = 100.0;
         
         let perspective = create_perspective_matrix(fov, aspect, near, far);
-        let s = scale * 0.5;
         
-        let perspective_scaled = [
-            perspective[0] * s, perspective[1], perspective[2], perspective[3],
-            perspective[4], perspective[5] * s, perspective[6], perspective[7],
-            perspective[8], perspective[9], perspective[10], perspective[11],
-            perspective[12], perspective[13], perspective[14], perspective[15],
+        // Apply transformations: rotation, scale, translation, camera
+        let cos_y = rotation.cos();
+        let sin_y = rotation.sin();
+        let cos_x = camera_angle_x.cos();
+        let sin_x = camera_angle_x.sin();
+        let cos_cam_y = camera_angle_y.cos();
+        let sin_cam_y = camera_angle_y.sin();
+        let s = scale * 0.8; // Visible size
+        
+        // Object rotation (Y-axis)
+        let rotation_matrix = [
+            cos_y * s, 0.0, sin_y * s, 0.0,
+            0.0, s, 0.0, 0.0,
+            -sin_y * s, 0.0, cos_y * s, 0.0,
+            translation[0], translation[1], -camera_distance, 1.0,
         ];
         
-        let transform_3d = create_3d_transform_matrix(
-            rotation, scale, translation, camera_distance, camera_angle_x, camera_angle_y
-        );
+        // Camera rotation around X-axis
+        let camera_x_matrix = [
+            1.0, 0.0, 0.0, 0.0,
+            0.0, cos_x, -sin_x, 0.0,
+            0.0, sin_x, cos_x, 0.0,
+            0.0, 0.0, 0.0, 1.0,
+        ];
         
-        let result = multiply_matrices(&perspective_scaled, &transform_3d);
+        // Camera rotation around Y-axis
+        let camera_y_matrix = [
+            cos_cam_y, 0.0, sin_cam_y, 0.0,
+            0.0, 1.0, 0.0, 0.0,
+            -sin_cam_y, 0.0, cos_cam_y, 0.0,
+            0.0, 0.0, 0.0, 1.0,
+        ];
+        
+        // Combine camera rotations
+        let camera_combined = multiply_matrices(&camera_x_matrix, &camera_y_matrix);
+        let model_view = multiply_matrices(&rotation_matrix, &camera_combined);
+        
+        let result = multiply_matrices(&perspective, &model_view);
         
         self.context.uniform_matrix4fv_with_f32_array(matrix_location.as_ref(), false, &result);
         self.context.uniform3fv_with_f32_array(color_location.as_ref(), &color);

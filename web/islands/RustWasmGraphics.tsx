@@ -132,8 +132,10 @@ export default function RustWasmGraphics() {
         engineRef.current.set_camera_angles(cameraAngles.x, cameraAngles.y);
         
         if (shape === "cube") {
+          console.log('Calling render_cube()');
           engineRef.current.render_cube();
         } else {
+          console.log('Calling render() for triangle');
           engineRef.current.render();
         }
       } catch (error) {
