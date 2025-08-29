@@ -1,0 +1,30 @@
+[package]
+name = "graphics_engine"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+web-sys = { version = "0.3", features = [
+    "console",
+    "Document",
+    "Element",
+    "HtmlCanvasElement",
+    "WebGlRenderingContext",
+    "WebGlProgram",
+    "WebGlShader",
+    "WebGlBuffer",
+    "WebGlUniformLocation",
+    "Window",
+] }
+js-sys = "0.3"
+
+[dependencies.wasm-bindgen-futures]
+version = "0.4"
+
+[profile.release]
+opt-level = "s"
+lto = true
