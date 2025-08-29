@@ -14,6 +14,11 @@ mod solar_system;
 use shaders::{compile_shader, link_program, VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE};
 use renderer::Renderer;
 use solar_system::SolarSystem;
+use math::create_rotation_matrix_2d;
+use triangle::Triangle;
+use rectangle::Rectangle;
+use sphere::Sphere;
+use shape_trait::RenderableShape;
 
 #[wasm_bindgen]
 pub struct GraphicsEngine {
@@ -114,26 +119,31 @@ impl GraphicsEngine {
 
     pub fn render(&self) {
         self.renderer.clear(self.background_color);
-        self.renderer.render_triangle(
-            self.rotation,
-            self.scale,
-            self.color,
-            self.translation,
-            self.wireframe_mode,
+        
+        let triangle = Triangle::new();
+        let matrix = create_rotation_matrix_2d(self.rotation, self.scale, self.translation);
+        triangle.render(
+            &self.renderer.context, 
+            &self.renderer.program, 
+            [0.0, 0.0, 0.0], 
+            self.color, 
+            &matrix, 
+            self.wireframe_mode
         );
     }
 
     pub fn render_cube(&self) {
         self.renderer.clear_3d(self.background_color);
-        self.renderer.render_cube(
-            self.rotation,
-            self.scale,
-            self.color,
-            self.translation,
-            self.camera_distance,
-            self.camera_angle_x,
-            self.camera_angle_y,
-            self.wireframe_mode,
+        
+        let rectangle = Rectangle::new();
+        let matrix = create_rotation_matrix_2d(self.rotation, self.scale, self.translation);
+        rectangle.render(
+            &self.renderer.context, 
+            &self.renderer.program, 
+            [0.0, 0.0, 0.0], 
+            self.color, 
+            &matrix, 
+            self.wireframe_mode
         );
     }
     
@@ -180,10 +190,15 @@ impl GraphicsEngine {
             let depth_factor = 1.0 / (1.0 + z_final * 0.1).max(0.1);
             let final_radius = body.radius * scale_factor * depth_factor;
             
-            self.renderer.render_sphere(
+            let sphere = Sphere::new(final_radius, 16, 16);
+            let translation_2d = [screen_x, screen_y];
+            let matrix = create_rotation_matrix_2d(0.0, 1.0, translation_2d);
+            sphere.render(
+                &self.renderer.context, 
+                &self.renderer.program, 
                 [screen_x, screen_y, 0.0], 
-                final_radius, 
                 body.color, 
+                &matrix, 
                 self.wireframe_mode
             );
         }
