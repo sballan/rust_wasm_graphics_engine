@@ -18,6 +18,8 @@ export const graphicsengine_set_time_scale: (a: number, b: number) => void;
 export const graphicsengine_render_solar_system: (a: number) => void;
 export const graphicsengine_get_planet_count: (a: number) => number;
 export const graphicsengine_get_planet_name: (a: number, b: number) => [number, number];
+export const graphicsengine_set_follow_planet: (a: number, b: number) => void;
+export const graphicsengine_get_follow_planet: (a: number) => number;
 export const __wbindgen_exn_store: (a: number) => void;
 export const __externref_table_alloc: () => number;
 export const __wbindgen_export_2: WebAssembly.Table;

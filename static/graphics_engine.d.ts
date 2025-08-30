@@ -18,6 +18,8 @@ export class GraphicsEngine {
   render_solar_system(): void;
   get_planet_count(): number;
   get_planet_name(index: number): string;
+  set_follow_planet(index: number): void;
+  get_follow_planet(): number;
 }
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
@@ -41,6 +43,8 @@ export interface InitOutput {
   readonly graphicsengine_render_solar_system: (a: number) => void;
   readonly graphicsengine_get_planet_count: (a: number) => number;
   readonly graphicsengine_get_planet_name: (a: number, b: number) => [number, number];
+  readonly graphicsengine_set_follow_planet: (a: number, b: number) => void;
+  readonly graphicsengine_get_follow_planet: (a: number) => number;
   readonly __wbindgen_exn_store: (a: number) => void;
   readonly __externref_table_alloc: () => number;
   readonly __wbindgen_export_2: WebAssembly.Table;

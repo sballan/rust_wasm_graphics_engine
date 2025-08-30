@@ -21,6 +21,7 @@ export default function SolarSystem() {
   const [cameraAngles, setCameraAngles] = useState({ x: -0.3, y: 0 });
   const [selectedPlanet, setSelectedPlanet] = useState<number | null>(null);
   const [planetNames, setPlanetNames] = useState<string[]>([]);
+  const [followPlanet, setFollowPlanet] = useState<number | null>(null);
   
   useEffect(() => {
     const loadWasm = async () => {
@@ -102,10 +103,18 @@ export default function SolarSystem() {
     if (engineRef.current) {
       engineRef.current.set_wireframe_mode(wireframeMode);
       engineRef.current.set_camera_distance(cameraDistance);
+      // Camera angles work with planet following - they control viewing angle
       engineRef.current.set_camera_angles(cameraAngles.x, cameraAngles.y);
       engineRef.current.set_time_scale(timeScale);
     }
   }, [wireframeMode, cameraDistance, cameraAngles, timeScale]);
+
+  useEffect(() => {
+    if (engineRef.current && engineRef.current.set_follow_planet) {
+      // Set planet to follow in WASM (-1 means no planet)
+      engineRef.current.set_follow_planet(followPlanet === null ? -1 : followPlanet);
+    }
+  }, [followPlanet]);
   
   useEffect(() => {
     if (isAnimating && engineRef.current) {
@@ -119,6 +128,9 @@ export default function SolarSystem() {
         
         // Update solar system physics
         engineRef.current.update_solar_system(deltaTime);
+        
+        // Planet following is now handled internally by WASM
+        // No need for frequent boundary crossings!
         
         // Render the scene
         engineRef.current.render_solar_system();
@@ -141,7 +153,7 @@ export default function SolarSystem() {
         animationRef.current = null;
       }
     };
-  }, [isAnimating]);
+  }, [isAnimating, followPlanet]);
   
   return (
     <div style={{ padding: "20px", fontFamily: "system-ui", backgroundColor: "#0a0a0f", color: "#fff", minHeight: "100vh" }}>
@@ -232,6 +244,7 @@ export default function SolarSystem() {
               <div style={{ marginBottom: "15px" }}>
                 <label style={{ display: "block", marginBottom: "5px" }}>
                   Vertical Angle: {(cameraAngles.x * 180 / Math.PI).toFixed(0)}°
+                  {followPlanet !== null && " (View Angle)"}
                 </label>
                 <input
                   type="range"
@@ -247,6 +260,7 @@ export default function SolarSystem() {
               <div style={{ marginBottom: "15px" }}>
                 <label style={{ display: "block", marginBottom: "5px" }}>
                   Horizontal Angle: {(cameraAngles.y * 180 / Math.PI).toFixed(0)}°
+                  {followPlanet !== null && " (View Angle)"}
                 </label>
                 <input
                   type="range"
@@ -279,6 +293,7 @@ export default function SolarSystem() {
                   setCameraDistance(5);
                   setCameraAngles({ x: -0.3, y: 0 });
                   setWireframeMode(false);
+                  setFollowPlanet(null);
                 }}
                 style={{
                   width: "100%",
@@ -293,6 +308,51 @@ export default function SolarSystem() {
                 🔄 Reset View
               </button>
             </div>
+          </div>
+          
+          <div style={{ backgroundColor: "#1a1a2e", padding: "20px", borderRadius: "8px", marginBottom: "20px" }}>
+            <h3>🎯 Follow Planet</h3>
+            <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+              <select
+                value={followPlanet === null ? "" : followPlanet.toString()}
+                onChange={(e) => {
+                  const value = e.currentTarget.value;
+                  setFollowPlanet(value === "" ? null : parseInt(value));
+                }}
+                style={{
+                  flex: 1,
+                  padding: "10px",
+                  backgroundColor: "#2a3f5a",
+                  color: "white",
+                  border: "1px solid #3a4f6a",
+                  borderRadius: "4px",
+                  fontSize: "16px",
+                  cursor: "pointer"
+                }}
+              >
+                <option value="">Free Camera</option>
+                {planetNames.map((name, index) => (
+                  <option key={index} value={index}>
+                    Follow {name}
+                  </option>
+                ))}
+              </select>
+              {followPlanet !== null && (
+                <span style={{ 
+                  padding: "10px 15px", 
+                  backgroundColor: "#28a745", 
+                  borderRadius: "4px",
+                  fontWeight: "bold"
+                }}>
+                  📍 Following {planetNames[followPlanet]}
+                </span>
+              )}
+            </div>
+            {followPlanet !== null && (
+              <p style={{ marginTop: "10px", fontSize: "14px", color: "#aaa" }}>
+                Camera is tracking {planetNames[followPlanet]}. Use camera controls to adjust viewing angle and distance.
+              </p>
+            )}
           </div>
           
           <div style={{ backgroundColor: "#1a1a2e", padding: "20px", borderRadius: "8px" }}>

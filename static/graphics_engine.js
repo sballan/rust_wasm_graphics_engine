@@ -317,6 +317,19 @@ export class GraphicsEngine {
             wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
         }
     }
+    /**
+     * @param {number} index
+     */
+    set_follow_planet(index) {
+        wasm.graphicsengine_set_follow_planet(this.__wbg_ptr, index);
+    }
+    /**
+     * @returns {number}
+     */
+    get_follow_planet() {
+        const ret = wasm.graphicsengine_get_follow_planet(this.__wbg_ptr);
+        return ret;
+    }
 }
 
 async function __wbg_load(module, imports) {

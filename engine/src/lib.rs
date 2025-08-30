@@ -33,6 +33,7 @@ pub struct GraphicsEngine {
     camera_angle_x: f32,
     camera_angle_y: f32,
     solar_system: SolarSystem,
+    followed_planet_index: Option<usize>,
 }
 
 #[wasm_bindgen]
@@ -81,6 +82,7 @@ impl GraphicsEngine {
             camera_angle_x: 0.0,
             camera_angle_y: 0.0,
             solar_system: SolarSystem::new(),
+            followed_planet_index: None,
         })
     }
 
@@ -149,6 +151,8 @@ impl GraphicsEngine {
     
     pub fn update_solar_system(&mut self, delta_time: f32) {
         self.solar_system.update(delta_time);
+        // Update camera to follow selected planet after physics update
+        self.update_camera_for_followed_planet();
     }
     
     pub fn set_time_scale(&mut self, scale: f32) {
@@ -158,14 +162,26 @@ impl GraphicsEngine {
     pub fn render_solar_system(&self) {
         self.renderer.clear_3d(self.background_color);
         
+        // Get the center position (origin or followed planet)
+        let center_position = if let Some(index) = self.followed_planet_index {
+            if let Some(body) = self.solar_system.get_body(index) {
+                let pos = body.get_position();
+                [pos[0], pos[1], pos[2]]
+            } else {
+                [0.0, 0.0, 0.0]
+            }
+        } else {
+            [0.0, 0.0, 0.0]
+        };
+        
         // Simple 3D to 2D projection with camera rotation
         for body in &self.solar_system.bodies {
             let position = body.get_position();
             
-            // Apply camera rotation manually
-            let x = position[0];
-            let y = position[1];
-            let z = position[2];
+            // Apply camera translation to center on followed planet
+            let x = position[0] - center_position[0];
+            let y = position[1] - center_position[1];
+            let z = position[2] - center_position[2];
             
             // Rotate around Y axis (horizontal rotation)
             let cos_y = self.camera_angle_y.cos();
@@ -212,5 +228,22 @@ impl GraphicsEngine {
         self.solar_system.get_body(index)
             .map(|body| body.name.clone())
             .unwrap_or_default()
+    }
+    
+    pub fn set_follow_planet(&mut self, index: i32) {
+        if index < 0 {
+            self.followed_planet_index = None;
+        } else {
+            self.followed_planet_index = Some(index as usize);
+        }
+    }
+
+    pub fn get_follow_planet(&self) -> i32 {
+        self.followed_planet_index.map(|i| i as i32).unwrap_or(-1)
+    }
+
+    fn update_camera_for_followed_planet(&mut self) {
+        // Camera centering is now handled in render_solar_system()
+        // This function is kept for future enhancements (e.g., auto-zoom)
     }
 }
