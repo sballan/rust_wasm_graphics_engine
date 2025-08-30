@@ -47,6 +47,11 @@ impl GraphicsEngine {
             .unwrap()
             .dyn_into::<WebGlRenderingContext>()
             .unwrap();
+        
+        // Set initial viewport
+        let width = canvas.width() as i32;
+        let height = canvas.height() as i32;
+        context.viewport(0, 0, width, height);
 
         let vert_shader = compile_shader(
             &context,
@@ -190,5 +195,12 @@ impl GraphicsEngine {
 
     pub fn get_follow_planet(&self) -> i32 {
         self.camera.followed_target.map(|i| i as i32).unwrap_or(-1)
+    }
+    
+    pub fn resize_canvas(&mut self, width: u32, height: u32) {
+        // Update WebGL viewport to match canvas size
+        self.renderer.context.viewport(0, 0, width as i32, height as i32);
+        // Store aspect ratio for reference (not used for scaling)
+        self.camera.set_aspect_ratio(width as f32 / height as f32);
     }
 }

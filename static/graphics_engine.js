@@ -330,6 +330,13 @@ export class GraphicsEngine {
         const ret = wasm.graphicsengine_get_follow_planet(this.__wbg_ptr);
         return ret;
     }
+    /**
+     * @param {number} width
+     * @param {number} height
+     */
+    resize_canvas(width, height) {
+        wasm.graphicsengine_resize_canvas(this.__wbg_ptr, width, height);
+    }
 }
 
 async function __wbg_load(module, imports) {
@@ -464,6 +471,10 @@ function __wbg_get_imports() {
         const ret = arg0.getUniformLocation(arg1, getStringFromWasm0(arg2, arg3));
         return isLikeNone(ret) ? 0 : addToExternrefTable0(ret);
     };
+    imports.wbg.__wbg_height_838cee19ba8597db = function(arg0) {
+        const ret = arg0.height;
+        return ret;
+    };
     imports.wbg.__wbg_instanceof_HtmlCanvasElement_2ea67072a7624ac5 = function(arg0) {
         let result;
         try {
@@ -535,6 +546,13 @@ function __wbg_get_imports() {
     };
     imports.wbg.__wbg_vertexAttribPointer_7a2a506cdbe3aebc = function(arg0, arg1, arg2, arg3, arg4, arg5, arg6) {
         arg0.vertexAttribPointer(arg1 >>> 0, arg2, arg3 >>> 0, arg4 !== 0, arg5, arg6);
+    };
+    imports.wbg.__wbg_viewport_a1b4d71297ba89af = function(arg0, arg1, arg2, arg3, arg4) {
+        arg0.viewport(arg1, arg2, arg3, arg4);
+    };
+    imports.wbg.__wbg_width_5dde457d606ba683 = function(arg0) {
+        const ret = arg0.width;
+        return ret;
     };
     imports.wbg.__wbindgen_boolean_get = function(arg0) {
         const v = arg0;

@@ -22,6 +22,32 @@ export default function SolarSystem() {
   const [selectedPlanet, setSelectedPlanet] = useState<number | null>(null);
   const [planetNames, setPlanetNames] = useState<string[]>([]);
   const [followPlanet, setFollowPlanet] = useState<number | null>(null);
+  const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 });
+  
+  const updateCanvasSize = () => {
+    const width = window.innerWidth - 40; // 20px padding on each side
+    const height = Math.min(window.innerHeight * 0.7, 600); // 70% of viewport or 600px max
+    setCanvasSize({ width, height });
+    
+    if (canvasRef.current) {
+      canvasRef.current.width = width;
+      canvasRef.current.height = height;
+      
+      // Update WebGL viewport if engine exists
+      if (engineRef.current && engineRef.current.resize_canvas) {
+        engineRef.current.resize_canvas(width, height);
+      }
+    }
+  };
+  
+  useEffect(() => {
+    updateCanvasSize();
+    window.addEventListener('resize', updateCanvasSize);
+    
+    return () => {
+      window.removeEventListener('resize', updateCanvasSize);
+    };
+  }, []);
   
   useEffect(() => {
     const loadWasm = async () => {
@@ -75,6 +101,9 @@ export default function SolarSystem() {
           }
           setPlanetNames(names);
           console.log('Planet names:', names);
+          
+          // Update canvas size now that engine is ready
+          updateCanvasSize();
           
           // Initial render
           engine.render_solar_system();
@@ -171,14 +200,15 @@ export default function SolarSystem() {
       <canvas
         ref={canvasRef}
         id="solar-canvas"
-        width={800}
-        height={600}
+        width={canvasSize.width}
+        height={canvasSize.height}
         style={{
           display: "block",
           margin: "0 auto 30px",
           border: "2px solid #333",
           backgroundColor: "#000",
-          borderRadius: "8px"
+          borderRadius: "8px",
+          maxWidth: "100%"
         }}
       />
       

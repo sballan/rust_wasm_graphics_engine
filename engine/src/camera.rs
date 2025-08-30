@@ -7,6 +7,7 @@ pub struct Camera {
     pub target_center: [f32; 3],
     pub transition_progress: f32,
     pub transition_duration: f32,
+    pub aspect_ratio: f32,
 }
 
 impl Camera {
@@ -20,6 +21,7 @@ impl Camera {
             target_center: [0.0, 0.0, 0.0],
             transition_progress: 1.0,
             transition_duration: 1.0,
+            aspect_ratio: 1.333,  // Default 4:3 aspect ratio
         }
     }
 
@@ -61,6 +63,10 @@ impl Camera {
     pub fn get_current_center(&self) -> [f32; 3] {
         self.current_center
     }
+    
+    pub fn set_aspect_ratio(&mut self, aspect_ratio: f32) {
+        self.aspect_ratio = aspect_ratio;
+    }
 
     pub fn transform_point(&self, point: [f32; 3], center: [f32; 3]) -> ([f32; 2], f32) {
         // Apply camera translation to center on followed object
@@ -84,6 +90,7 @@ impl Camera {
         let scale_factor = 1.0 / self.distance;
         
         // Project to screen coordinates
+        // Don't apply aspect ratio here - we'll handle it in the matrix
         let screen_x = x_rotated * scale_factor;
         let screen_y = y_rotated * scale_factor;
         
