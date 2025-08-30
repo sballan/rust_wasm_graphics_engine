@@ -17,7 +17,7 @@ export default function SolarSystem() {
   const [timeScale, setTimeScale] = useState(1);
   const [isAnimating, setIsAnimating] = useState(true);
   const [wireframeMode, setWireframeMode] = useState(false);
-  const [cameraDistance, setCameraDistance] = useState(5);
+  const [cameraDistance, setCameraDistance] = useState(1.5);
   const [cameraAngles, setCameraAngles] = useState({ x: -0.3, y: 0 });
   const [planetNames, setPlanetNames] = useState<string[]>([]);
   const [followPlanet, setFollowPlanet] = useState<number | null>(null);
@@ -290,8 +290,8 @@ export default function SolarSystem() {
                     <input
                       type="range"
                       min="0"
-                      max="50"
-                      step="0.5"
+                      max="200"
+                      step="1"
                       value={timeScale}
                       onInput={(e) => setTimeScale(parseFloat(e.currentTarget.value))}
                       style={{ width: "100%" }}

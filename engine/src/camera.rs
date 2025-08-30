@@ -13,7 +13,7 @@ pub struct Camera {
 impl Camera {
     pub fn new() -> Self {
         Self {
-            distance: 3.0,
+            distance: 1.5,
             angle_x: 0.0,
             angle_y: 0.0,
             followed_target: None,
