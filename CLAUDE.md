@@ -7,7 +7,11 @@ After making any code changes that affect the WASM module or web interface:
 
 1. **Rebuild WASM** (if Rust code changed):
    ```bash
-   cd engine && wasm-pack build --target web --out-dir ../web/static
+   deno task build:wasm
+   ```
+   Or manually:
+   ```bash
+   wasm-pack build --target web --out-dir static
    ```
 
 2. **Check server status**:
@@ -20,7 +24,8 @@ After making any code changes that affect the WASM module or web interface:
 ### Current Project Status
 - **Solar System Model**: Working with full 3D camera controls
 - **Server**: Deno Fresh development server (usually port 8000-8002)
-- **WASM Build Location**: `web/static/`
+- **WASM Build Location**: `static/` (root level)
+- **Rust Target Location**: `engine/target/`
 - **Main Routes**:
   - `/` - Home page with demo links
   - `/solar-system` - Interactive solar system model
@@ -28,10 +33,16 @@ After making any code changes that affect the WASM module or web interface:
 ### Common Commands
 ```bash
 # Start dev server
-cd web && deno task start
+deno task start
 
 # Build WASM module
-cd engine && wasm-pack build --target web --out-dir ../web/static
+deno task build:wasm
+
+# Build everything (WASM + Fresh)
+deno task build:all
+
+# Production preview
+deno task preview
 
 # Check server health
 curl -I http://localhost:8000/
@@ -49,7 +60,23 @@ When things break:
 5. Rebuild WASM if Rust changes were made
 
 ### Project Architecture
-- **Engine**: Rust/WASM graphics engine with WebGL
-- **Web**: Deno Fresh frontend with Preact/TypeScript
+- **Engine**: Rust/WASM graphics engine with WebGL (source: `engine/src/`, builds to: `engine/target/`)
+- **Frontend**: Deno Fresh with Preact/TypeScript (routes: `routes/`, islands: `islands/`)
+- **Static Assets**: Served from `static/` (includes WASM output)
 - **Solar System**: 9 celestial bodies with orbital mechanics
 - **Camera**: 3D orbital camera with distance/rotation controls
+
+### Directory Structure
+```
+root/
+├── engine/src/           # Rust source code
+├── engine/target/        # Rust build artifacts
+├── routes/               # Fresh routes
+├── islands/              # Fresh islands (client components)
+├── components/           # Shared components
+├── static/               # Static files & WASM output
+├── Cargo.toml           # Rust configuration
+├── deno.json            # Deno tasks & dependencies
+├── fresh.config.ts      # Fresh configuration
+└── dev.ts, main.ts      # Fresh entry points
+```
