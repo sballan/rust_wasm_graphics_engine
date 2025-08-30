@@ -13,16 +13,8 @@ impl SolarSystemRenderer {
         renderer: &Renderer,
         wireframe_mode: bool,
     ) {
-        // Get the center position (origin or followed planet)
-        let center_position = if let Some(index) = camera.followed_target {
-            if let Some(body) = solar_system.get_body(index) {
-                body.get_position()
-            } else {
-                [0.0, 0.0, 0.0]
-            }
-        } else {
-            [0.0, 0.0, 0.0]
-        };
+        // Use the camera's interpolated center position
+        let center_position = camera.get_current_center();
         
         // Render each celestial body
         for body in &solar_system.bodies {

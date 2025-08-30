@@ -142,6 +142,18 @@ impl GraphicsEngine {
     
     pub fn update_solar_system(&mut self, delta_time: f32) {
         self.solar_system.update(delta_time);
+        
+        let target_position = if let Some(index) = self.camera.followed_target {
+            if let Some(body) = self.solar_system.get_body(index) {
+                body.get_position()
+            } else {
+                [0.0, 0.0, 0.0]
+            }
+        } else {
+            [0.0, 0.0, 0.0]
+        };
+        
+        self.camera.update_transition(delta_time, target_position);
     }
     
     pub fn set_time_scale(&mut self, scale: f32) {

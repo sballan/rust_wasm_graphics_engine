@@ -3,6 +3,10 @@ pub struct Camera {
     pub angle_x: f32,
     pub angle_y: f32,
     pub followed_target: Option<usize>,
+    pub current_center: [f32; 3],
+    pub target_center: [f32; 3],
+    pub transition_progress: f32,
+    pub transition_duration: f32,
 }
 
 impl Camera {
@@ -12,6 +16,10 @@ impl Camera {
             angle_x: 0.0,
             angle_y: 0.0,
             followed_target: None,
+            current_center: [0.0, 0.0, 0.0],
+            target_center: [0.0, 0.0, 0.0],
+            transition_progress: 1.0,
+            transition_duration: 1.0,
         }
     }
 
@@ -26,6 +34,32 @@ impl Camera {
 
     pub fn follow_target(&mut self, index: Option<usize>) {
         self.followed_target = index;
+        self.transition_progress = 0.0;
+    }
+    
+    pub fn update_transition(&mut self, delta_time: f32, target_position: [f32; 3]) {
+        if self.transition_progress < 1.0 {
+            self.transition_progress += delta_time / self.transition_duration;
+            if self.transition_progress > 1.0 {
+                self.transition_progress = 1.0;
+            }
+        }
+        
+        self.target_center = target_position;
+        
+        let t = self.smooth_step(self.transition_progress);
+        
+        for i in 0..3 {
+            self.current_center[i] = self.current_center[i] * (1.0 - t) + self.target_center[i] * t;
+        }
+    }
+    
+    fn smooth_step(&self, t: f32) -> f32 {
+        t * t * (3.0 - 2.0 * t)
+    }
+    
+    pub fn get_current_center(&self) -> [f32; 3] {
+        self.current_center
     }
 
     pub fn transform_point(&self, point: [f32; 3], center: [f32; 3]) -> ([f32; 2], f32) {
