@@ -5,20 +5,18 @@ use web_sys::WebGlRenderingContext;
 mod shaders;
 mod math;
 mod renderer;
-mod shape_trait;
-mod sphere;
-mod triangle; 
-mod rectangle;
+mod shapes;
 mod solar_system;
+mod camera;
+mod rendering;
 
 use shaders::{compile_shader, link_program, VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE};
 use renderer::Renderer;
 use solar_system::SolarSystem;
 use math::create_rotation_matrix_2d;
-use triangle::Triangle;
-use rectangle::Rectangle;
-use sphere::Sphere;
-use shape_trait::RenderableShape;
+use shapes::{Triangle, Rectangle, RenderableShape};
+use camera::Camera;
+use rendering::SolarSystemRenderer;
 
 #[wasm_bindgen]
 pub struct GraphicsEngine {
@@ -29,11 +27,8 @@ pub struct GraphicsEngine {
     translation: [f32; 2],
     background_color: [f32; 4],
     wireframe_mode: bool,
-    camera_distance: f32,
-    camera_angle_x: f32,
-    camera_angle_y: f32,
+    camera: Camera,
     solar_system: SolarSystem,
-    followed_planet_index: Option<usize>,
 }
 
 #[wasm_bindgen]
@@ -78,11 +73,8 @@ impl GraphicsEngine {
             translation: [0.0, 0.0],
             background_color: [0.0, 0.0, 0.0, 1.0],
             wireframe_mode: false,
-            camera_distance: 3.0,
-            camera_angle_x: 0.0,
-            camera_angle_y: 0.0,
+            camera: Camera::new(),
             solar_system: SolarSystem::new(),
-            followed_planet_index: None,
         })
     }
 
@@ -111,12 +103,11 @@ impl GraphicsEngine {
     }
 
     pub fn set_camera_distance(&mut self, distance: f32) {
-        self.camera_distance = distance;
+        self.camera.set_distance(distance);
     }
 
     pub fn set_camera_angles(&mut self, angle_x: f32, angle_y: f32) {
-        self.camera_angle_x = angle_x;
-        self.camera_angle_y = angle_y;
+        self.camera.set_angles(angle_x, angle_y);
     }
 
     pub fn render(&self) {
@@ -151,8 +142,6 @@ impl GraphicsEngine {
     
     pub fn update_solar_system(&mut self, delta_time: f32) {
         self.solar_system.update(delta_time);
-        // Update camera to follow selected planet after physics update
-        self.update_camera_for_followed_planet();
     }
     
     pub fn set_time_scale(&mut self, scale: f32) {
@@ -161,63 +150,12 @@ impl GraphicsEngine {
     
     pub fn render_solar_system(&self) {
         self.renderer.clear_3d(self.background_color);
-        
-        // Get the center position (origin or followed planet)
-        let center_position = if let Some(index) = self.followed_planet_index {
-            if let Some(body) = self.solar_system.get_body(index) {
-                let pos = body.get_position();
-                [pos[0], pos[1], pos[2]]
-            } else {
-                [0.0, 0.0, 0.0]
-            }
-        } else {
-            [0.0, 0.0, 0.0]
-        };
-        
-        // Simple 3D to 2D projection with camera rotation
-        for body in &self.solar_system.bodies {
-            let position = body.get_position();
-            
-            // Apply camera translation to center on followed planet
-            let x = position[0] - center_position[0];
-            let y = position[1] - center_position[1];
-            let z = position[2] - center_position[2];
-            
-            // Rotate around Y axis (horizontal rotation)
-            let cos_y = self.camera_angle_y.cos();
-            let sin_y = self.camera_angle_y.sin();
-            let x_rotated = x * cos_y - z * sin_y;
-            let z_rotated = x * sin_y + z * cos_y;
-            
-            // Rotate around X axis (vertical rotation)
-            let cos_x = self.camera_angle_x.cos();
-            let sin_x = self.camera_angle_x.sin();
-            let y_rotated = y * cos_x - z_rotated * sin_x;
-            let z_final = y * sin_x + z_rotated * cos_x;
-            
-            // Apply camera distance (zoom)
-            let scale_factor = 1.0 / self.camera_distance;
-            
-            // Project to screen coordinates
-            let screen_x = x_rotated * scale_factor;
-            let screen_y = y_rotated * scale_factor;
-            
-            // Use z for depth-based scaling (simple perspective)
-            let depth_factor = 1.0 / (1.0 + z_final * 0.1).max(0.1);
-            let final_radius = body.radius * scale_factor * depth_factor;
-            
-            let sphere = Sphere::new(final_radius, 16, 16);
-            let translation_2d = [screen_x, screen_y];
-            let matrix = create_rotation_matrix_2d(0.0, 1.0, translation_2d);
-            sphere.render(
-                &self.renderer.context, 
-                &self.renderer.program, 
-                [screen_x, screen_y, 0.0], 
-                body.color, 
-                &matrix, 
-                self.wireframe_mode
-            );
-        }
+        SolarSystemRenderer::render(
+            &self.solar_system,
+            &self.camera,
+            &self.renderer,
+            self.wireframe_mode,
+        );
     }
     
     pub fn get_planet_count(&self) -> usize {
@@ -232,18 +170,13 @@ impl GraphicsEngine {
     
     pub fn set_follow_planet(&mut self, index: i32) {
         if index < 0 {
-            self.followed_planet_index = None;
+            self.camera.follow_target(None);
         } else {
-            self.followed_planet_index = Some(index as usize);
+            self.camera.follow_target(Some(index as usize));
         }
     }
 
     pub fn get_follow_planet(&self) -> i32 {
-        self.followed_planet_index.map(|i| i as i32).unwrap_or(-1)
-    }
-
-    fn update_camera_for_followed_planet(&mut self) {
-        // Camera centering is now handled in render_solar_system()
-        // This function is kept for future enhancements (e.g., auto-zoom)
+        self.camera.followed_target.map(|i| i as i32).unwrap_or(-1)
     }
 }

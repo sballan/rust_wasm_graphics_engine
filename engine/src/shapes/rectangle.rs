@@ -1,5 +1,5 @@
 use web_sys::{WebGlProgram, WebGlRenderingContext};
-use crate::shape_trait::{RenderableShape, setup_vertex_buffer, set_uniforms};
+use super::traits::{RenderableShape, setup_vertex_buffer, set_uniforms};
 
 pub struct Rectangle {
     vertices: [f32; 12],

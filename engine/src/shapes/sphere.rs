@@ -1,6 +1,6 @@
 use web_sys::{WebGlProgram, WebGlRenderingContext};
 use std::f32::consts::PI;
-use crate::shape_trait::{RenderableShape, setup_vertex_buffer, set_uniforms};
+use super::traits::{RenderableShape, setup_vertex_buffer, set_uniforms};
 
 pub struct Sphere {
     vertices: Vec<f32>,
