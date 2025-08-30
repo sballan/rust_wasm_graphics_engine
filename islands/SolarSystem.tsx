@@ -252,7 +252,7 @@ export default function SolarSystem() {
                 right: "10px",
                 zIndex: 20,
                 padding: "8px 12px",
-                backgroundColor: "rgba(26, 26, 46, 0.95)",
+                backgroundColor: "rgba(26, 26, 46, 0.2)",
                 color: "white",
                 border: "1px solid rgba(255, 255, 255, 0.2)",
                 borderRadius: "6px",
@@ -276,7 +276,7 @@ export default function SolarSystem() {
                 zIndex: 10
               }}>
                 <div style={{ 
-                  backgroundColor: "rgba(26, 26, 46, 0.95)",
+                  backgroundColor: "rgba(26, 26, 46, 0.2)",
                   padding: "15px",
                   borderRadius: "8px",
                   backdropFilter: "blur(10px)",
@@ -316,7 +316,7 @@ export default function SolarSystem() {
                 </div>
                 
                 <div style={{ 
-                  backgroundColor: "rgba(26, 26, 46, 0.95)",
+                  backgroundColor: "rgba(26, 26, 46, 0.2)",
                   padding: "15px",
                   borderRadius: "8px",
                   backdropFilter: "blur(10px)",
@@ -370,7 +370,7 @@ export default function SolarSystem() {
                 </div>
                 
                 <div style={{ 
-                  backgroundColor: "rgba(26, 26, 46, 0.95)",
+                  backgroundColor: "rgba(26, 26, 46, 0.2)",
                   padding: "15px",
                   borderRadius: "8px",
                   backdropFilter: "blur(10px)",
