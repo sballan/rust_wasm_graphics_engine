@@ -14,7 +14,7 @@ export default function SolarSystem() {
   const lastTimeRef = useRef<number>(0);
   
   const [status, setStatus] = useState("Loading...");
-  const [timeScale, setTimeScale] = useState(1);
+  const [timeScale, setTimeScale] = useState(100);
   const [isAnimating, setIsAnimating] = useState(true);
   const [wireframeMode, setWireframeMode] = useState(false);
   const [cameraDistance, setCameraDistance] = useState(1.5);
@@ -405,7 +405,7 @@ export default function SolarSystem() {
                   
                   <button
                     onClick={() => {
-                      setTimeScale(1);
+                      setTimeScale(100);
                       setCameraDistance(5);
                       setCameraAngles({ x: -0.3, y: 0 });
                       setWireframeMode(false);

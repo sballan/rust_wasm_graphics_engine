@@ -74,7 +74,7 @@ impl SolarSystem {
         
         Self {
             bodies,
-            time_scale: 1.0,
+            time_scale: 100.0,
         }
     }
     
