@@ -29,9 +29,21 @@ impl Starfield {
             let y = r * phi.sin() * theta.sin();
             let z = r * phi.cos();
 
-            // Random brightness and size for variety - moderate brightness and size
-            let brightness = 0.4 + 0.4 * js_sys::Math::random() as f32;  // 0.4 to 0.8 brightness
-            let size = 1.5 + 2.0 * js_sys::Math::random() as f32;  // 1.5 to 3.5 size
+            // Random brightness and size for variety - wider range for more dramatic stars
+            let random = js_sys::Math::random() as f32;
+            let brightness = if random > 0.9 {
+                // 10% of stars are very bright
+                0.8 + 0.2 * js_sys::Math::random() as f32  // 0.8 to 1.0 brightness
+            } else {
+                0.3 + 0.4 * js_sys::Math::random() as f32  // 0.3 to 0.7 for most stars
+            };
+            
+            let size = if random > 0.9 {
+                // Same 10% of stars are also bigger
+                3.0 + 3.0 * js_sys::Math::random() as f32  // 3.0 to 6.0 size for bright stars
+            } else {
+                1.0 + 2.0 * js_sys::Math::random() as f32  // 1.0 to 3.0 for regular stars
+            };
 
             stars.push(Star {
                 position: [x, y, z],

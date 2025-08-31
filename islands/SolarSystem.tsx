@@ -258,7 +258,7 @@ export default function SolarSystem() {
                 borderRadius: "6px",
                 cursor: "pointer",
                 fontSize: "14px",
-                backdropFilter: "blur(10px)"
+                backdropFilter: "blur(3px)"
               }}
             >
               {controlsVisible ? "👁️ Hide Controls" : "⚙️ Show Controls"}
@@ -279,7 +279,7 @@ export default function SolarSystem() {
                   backgroundColor: "rgba(26, 26, 46, 0.2)",
                   padding: "15px",
                   borderRadius: "8px",
-                  backdropFilter: "blur(10px)",
+                  backdropFilter: "blur(3px)",
                   minWidth: "200px"
                 }}>
                   <h4 style={{ margin: "0 0 10px 0", fontSize: "14px" }}>⏱️ Time Controls</h4>
@@ -319,7 +319,7 @@ export default function SolarSystem() {
                   backgroundColor: "rgba(26, 26, 46, 0.2)",
                   padding: "15px",
                   borderRadius: "8px",
-                  backdropFilter: "blur(10px)",
+                  backdropFilter: "blur(3px)",
                   minWidth: "200px"
                 }}>
                   <h4 style={{ margin: "0 0 10px 0", fontSize: "14px" }}>🎥 Camera</h4>
@@ -373,7 +373,7 @@ export default function SolarSystem() {
                   backgroundColor: "rgba(26, 26, 46, 0.2)",
                   padding: "15px",
                   borderRadius: "8px",
-                  backdropFilter: "blur(10px)",
+                  backdropFilter: "blur(3px)",
                   minWidth: "200px"
                 }}>
                   <h4 style={{ margin: "0 0 10px 0", fontSize: "14px" }}>🎯 Follow Planet</h4>

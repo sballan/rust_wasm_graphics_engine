@@ -85,7 +85,7 @@ void main() {
     gl_Position = u_projection_matrix * u_view_matrix * vec4(a_star_position, 1.0);
     // Moderate star size that scales with distance
     float distance = length(gl_Position.xyz);
-    gl_PointSize = a_size * 100.0 / distance;  // Moderate base size
+    gl_PointSize = a_size * 250.0 / distance;  // Much bigger size multiplier
     v_brightness = a_brightness;
 }
 "#;
@@ -100,15 +100,25 @@ void main() {
     vec2 coord = gl_PointCoord - vec2(0.5);
     float dist = length(coord);
     
-    // Moderate glow with smooth falloff
+    // Sharp core with softer glow for bright stars
     float intensity = 1.0 - smoothstep(0.0, 0.5, dist);
-    intensity = pow(intensity, 0.7);  // Balanced falloff
     
-    // Subtle star colors - soft white with slight blue tint
-    vec3 starColor = vec3(0.95, 0.93, 0.9 + 0.1 * v_brightness);
+    // Brighter stars get sharper cores
+    if (v_brightness > 0.8) {
+        intensity = pow(intensity, 0.4);  // Sharper, brighter core for bright stars
+    } else {
+        intensity = pow(intensity, 0.8);  // Softer for dim stars
+    }
     
-    // Moderate alpha for subtle visibility
-    float alpha = intensity * v_brightness * 0.8;
+    // Brighter star colors - more white for bright stars
+    vec3 starColor = mix(
+        vec3(0.9, 0.88, 0.85),  // Dim star color
+        vec3(1.0, 0.98, 0.95),  // Bright star color
+        v_brightness
+    );
+    
+    // Higher alpha for bright stars
+    float alpha = intensity * (0.5 + 0.5 * v_brightness);
     
     gl_FragColor = vec4(starColor, alpha);
 }
