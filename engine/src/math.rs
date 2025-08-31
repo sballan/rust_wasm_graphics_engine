@@ -1,5 +1,33 @@
 // Removed unused 3D matrix functions - using manual projection instead
 
+pub fn create_view_matrix(camera_pos: [f32; 3], angle_x: f32, angle_y: f32) -> [f32; 16] {
+    // Create view matrix from camera position and angles
+    let cos_x = angle_x.cos();
+    let sin_x = angle_x.sin();
+    let cos_y = angle_y.cos();
+    let sin_y = angle_y.sin();
+    
+    // Combined rotation matrix (Y rotation * X rotation)
+    [
+        cos_y, sin_x * sin_y, -cos_x * sin_y, 0.0,
+        0.0, cos_x, sin_x, 0.0,
+        sin_y, -sin_x * cos_y, cos_x * cos_y, 0.0,
+        -camera_pos[0], -camera_pos[1], -camera_pos[2], 1.0,
+    ]
+}
+
+pub fn create_perspective_matrix(fov: f32, aspect_ratio: f32, near: f32, far: f32) -> [f32; 16] {
+    let f = 1.0 / (fov / 2.0).tan();
+    let range_inv = 1.0 / (near - far);
+    
+    [
+        f / aspect_ratio, 0.0, 0.0, 0.0,
+        0.0, f, 0.0, 0.0,
+        0.0, 0.0, (near + far) * range_inv, -1.0,
+        0.0, 0.0, 2.0 * near * far * range_inv, 0.0,
+    ]
+}
+
 pub fn create_rotation_matrix_2d(rotation: f32, scale: f32, translation: [f32; 2]) -> [f32; 16] {
     let cos = rotation.cos();
     let sin = rotation.sin();

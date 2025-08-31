@@ -373,11 +373,18 @@ async function __wbg_load(module, imports) {
 function __wbg_get_imports() {
     const imports = {};
     imports.wbg = {};
+    imports.wbg.__wbg_acos_b68abcb126624477 = function(arg0) {
+        const ret = Math.acos(arg0);
+        return ret;
+    };
     imports.wbg.__wbg_attachShader_94e758c8b5283eb2 = function(arg0, arg1, arg2) {
         arg0.attachShader(arg1, arg2);
     };
     imports.wbg.__wbg_bindBuffer_f32f587f1c2962a7 = function(arg0, arg1, arg2) {
         arg0.bindBuffer(arg1 >>> 0, arg2);
+    };
+    imports.wbg.__wbg_blendFunc_9454884a3cfd2911 = function(arg0, arg1, arg2) {
+        arg0.blendFunc(arg1 >>> 0, arg2 >>> 0);
     };
     imports.wbg.__wbg_bufferData_33c59bf909ea6fd3 = function(arg0, arg1, arg2, arg3) {
         arg0.bufferData(arg1 >>> 0, arg2, arg3 >>> 0);
@@ -413,6 +420,9 @@ function __wbg_get_imports() {
     };
     imports.wbg.__wbg_depthFunc_2906916f4536d5d7 = function(arg0, arg1) {
         arg0.depthFunc(arg1 >>> 0);
+    };
+    imports.wbg.__wbg_disableVertexAttribArray_afd097fb465dc100 = function(arg0, arg1) {
+        arg0.disableVertexAttribArray(arg1 >>> 0);
     };
     imports.wbg.__wbg_disable_8b53998501a7a85b = function(arg0, arg1) {
         arg0.disable(arg1 >>> 0);
@@ -514,6 +524,10 @@ function __wbg_get_imports() {
     };
     imports.wbg.__wbg_newwithbyteoffsetandlength_e6b7e69acd4c7354 = function(arg0, arg1, arg2) {
         const ret = new Float32Array(arg0, arg1 >>> 0, arg2 >>> 0);
+        return ret;
+    };
+    imports.wbg.__wbg_random_3ad904d98382defe = function() {
+        const ret = Math.random();
         return ret;
     };
     imports.wbg.__wbg_shaderSource_ad0087e637a35191 = function(arg0, arg1, arg2, arg3) {

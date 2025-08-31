@@ -70,3 +70,46 @@ void main() {
     gl_FragColor = vec4(vColor.rgb * uColor, 1.0);
 }
 "#;
+
+pub const STARFIELD_VERTEX_SHADER: &str = r#"
+attribute vec3 a_star_position;
+attribute float a_brightness;
+attribute float a_size;
+
+uniform mat4 u_view_matrix;
+uniform mat4 u_projection_matrix;
+
+varying float v_brightness;
+
+void main() {
+    gl_Position = u_projection_matrix * u_view_matrix * vec4(a_star_position, 1.0);
+    // Moderate star size that scales with distance
+    float distance = length(gl_Position.xyz);
+    gl_PointSize = a_size * 100.0 / distance;  // Moderate base size
+    v_brightness = a_brightness;
+}
+"#;
+
+pub const STARFIELD_FRAGMENT_SHADER: &str = r#"
+precision mediump float;
+
+varying float v_brightness;
+
+void main() {
+    // Create circular star shape
+    vec2 coord = gl_PointCoord - vec2(0.5);
+    float dist = length(coord);
+    
+    // Moderate glow with smooth falloff
+    float intensity = 1.0 - smoothstep(0.0, 0.5, dist);
+    intensity = pow(intensity, 0.7);  // Balanced falloff
+    
+    // Subtle star colors - soft white with slight blue tint
+    vec3 starColor = vec3(0.95, 0.93, 0.9 + 0.1 * v_brightness);
+    
+    // Moderate alpha for subtle visibility
+    float alpha = intensity * v_brightness * 0.8;
+    
+    gl_FragColor = vec4(starColor, alpha);
+}
+"#;

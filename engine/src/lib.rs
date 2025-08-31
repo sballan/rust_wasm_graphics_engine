@@ -9,14 +9,16 @@ mod shapes;
 mod solar_system;
 mod camera;
 mod rendering;
+mod starfield;
 
-use shaders::{compile_shader, link_program, VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE};
+use shaders::{compile_shader, link_program, VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE, STARFIELD_VERTEX_SHADER, STARFIELD_FRAGMENT_SHADER};
 use renderer::Renderer;
 use solar_system::SolarSystem;
 use math::create_rotation_matrix_2d;
 use shapes::{Triangle, Rectangle, RenderableShape};
 use camera::Camera;
 use rendering::SolarSystemRenderer;
+use starfield::Starfield;
 
 #[wasm_bindgen]
 pub struct GraphicsEngine {
@@ -29,6 +31,8 @@ pub struct GraphicsEngine {
     wireframe_mode: bool,
     camera: Camera,
     solar_system: SolarSystem,
+    starfield: Starfield,
+    starfield_program: web_sys::WebGlProgram,
 }
 
 #[wasm_bindgen]
@@ -66,9 +70,30 @@ impl GraphicsEngine {
         ).map_err(|e| JsValue::from_str(&e))?;
 
         let program = link_program(&context, &vert_shader, &frag_shader).map_err(|e| JsValue::from_str(&e))?;
+        
+        // Create starfield shader program
+        let star_vert_shader = compile_shader(
+            &context,
+            WebGlRenderingContext::VERTEX_SHADER,
+            STARFIELD_VERTEX_SHADER,
+        ).map_err(|e| JsValue::from_str(&e))?;
+
+        let star_frag_shader = compile_shader(
+            &context,
+            WebGlRenderingContext::FRAGMENT_SHADER,
+            STARFIELD_FRAGMENT_SHADER,
+        ).map_err(|e| JsValue::from_str(&e))?;
+
+        let starfield_program = link_program(&context, &star_vert_shader, &star_frag_shader)
+            .map_err(|e| JsValue::from_str(&e))?;
+        
         context.use_program(Some(&program));
 
-        let renderer = Renderer::new(context, program);
+        let renderer = Renderer::new(context.clone(), program);
+        
+        // Create starfield with 5000 stars much further away at radius 500
+        let mut starfield = Starfield::new(5000, 500.0);
+        starfield.init_buffers(&context)?;
 
         Ok(GraphicsEngine {
             renderer,
@@ -80,6 +105,8 @@ impl GraphicsEngine {
             wireframe_mode: false,
             camera: Camera::new(),
             solar_system: SolarSystem::new(),
+            starfield,
+            starfield_program,
         })
     }
 
@@ -166,13 +193,52 @@ impl GraphicsEngine {
     }
     
     pub fn render_solar_system(&self) {
+        use crate::math::{create_view_matrix, create_perspective_matrix};
+        
         self.renderer.clear_3d(self.background_color);
+        
+        // Enable depth testing and blending for stars
+        self.renderer.context.enable(WebGlRenderingContext::DEPTH_TEST);
+        self.renderer.context.enable(WebGlRenderingContext::BLEND);
+        self.renderer.context.blend_func(WebGlRenderingContext::SRC_ALPHA, WebGlRenderingContext::ONE_MINUS_SRC_ALPHA);
+        
+        // Render starfield first (behind everything)
+        self.renderer.context.use_program(Some(&self.starfield_program));
+        
+        // Create view and projection matrices for starfield
+        let view_matrix = create_view_matrix(
+            self.camera.get_current_center(),
+            self.camera.angle_x,
+            self.camera.angle_y,
+        );
+        let projection_matrix = create_perspective_matrix(
+            std::f32::consts::PI / 3.0,  // 60 degree FOV
+            self.camera.aspect_ratio,
+            0.1,
+            1000.0,
+        );
+        
+        // Render the starfield
+        let _ = self.starfield.render(
+            &self.renderer.context,
+            &self.starfield_program,
+            &view_matrix,
+            &projection_matrix,
+        );
+        
+        // Switch back to main program for solar system
+        self.renderer.context.use_program(Some(&self.renderer.program));
+        
+        // Render solar system
         SolarSystemRenderer::render(
             &self.solar_system,
             &self.camera,
             &self.renderer,
             self.wireframe_mode,
         );
+        
+        // Disable blending
+        self.renderer.context.disable(WebGlRenderingContext::BLEND);
     }
     
     pub fn get_planet_count(&self) -> usize {
